@@ -4,10 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon dist/index.js",
+    "start": "npm run build && node dist/index.js",
+    "server": "nodemon dist/index.js",
     "build": "tsc && npm run doc",
     "doc": "apidoc -c apidoc.json -i . -f src/controllers -f middleware/authentication -o ./dist/src/doc",
-    "devMode": "tsc -w"
+    "watch": "tsc -w"
   },
   "repository": {
     "type": "git",
