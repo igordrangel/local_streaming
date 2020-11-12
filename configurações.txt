@@ -1,0 +1,13 @@
+setup local_streaming:
+- sudo apt install nodejs
+- sudo apt install npm
+- git clone https://github.com/igordrangel/local_streaming.git
+- npm install
+- npm run build
+
+- sudo apt update
+- sudo apt install nginx
+- sudo ufw allow 'Nginx HTTP'
+- cd local_streaming
+- sudo npm install pm2@latest -g
+- pm2 start dist/local_streaming.js
