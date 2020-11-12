@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run build && node dist/index.js",
-    "server": "nodemon dist/index.js",
+    "start": "npm run build && node dist/local-streaming.js",
+    "server": "nodemon dist/local-streaming.js",
     "build": "tsc && npm run doc",
     "doc": "apidoc -c apidoc.json -i . -f src/controllers -f middleware/authentication -o ./dist/src/doc",
     "watch": "tsc -w"
