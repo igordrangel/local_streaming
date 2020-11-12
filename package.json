@@ -8,7 +8,8 @@
     "server": "nodemon dist/local_streaming.js",
     "build": "tsc && npm run doc",
     "doc": "apidoc -c apidoc.json -i . -f src/controllers -f middleware/authentication -o ./dist/src/doc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "up-server": "sudo apt update && sudo apt install nginx && sudo ufw allow 'Nginx HTTP' && sudo npm install pm2@latest -g && npm run build && pm2 start dist/local_streaming.js"
   },
   "repository": {
     "type": "git",
