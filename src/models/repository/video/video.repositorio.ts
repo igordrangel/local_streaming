@@ -1,10 +1,27 @@
-import { Not, Repository } from "typeorm";
+import { EntityRepository, In, Not, Repository } from "typeorm";
 import { Video } from "../../entity/videos/video";
 import { VideoInterface } from "../../../interfaces/video/video.interface";
 import * as fs from "fs";
 import * as path from "path";
+import { VideoFilterInterface } from "../../../interfaces/video/video-filter.interface";
+import { koala } from "koala-utils";
 
+@EntityRepository(Video)
 export class VideoRepositorio extends Repository<Video> {
+	
+	public buscar(params: VideoFilterInterface) {
+		return this.find({
+			where: [{
+				titulo: In(koala(params.titulo ?? '').string().split(' ').getValue()),
+				categoria: params.categoria,
+				tipo: params.tipo
+			}, {
+				tituloOriginal: In(koala(params.titulo ?? '').string().split(' ').getValue()),
+				categoria: params.categoria,
+				tipo: params.tipo
+			}]
+		})
+	}
 	
 	public cadastrar(dadosVideo: VideoInterface) {
 		return new Promise<Video>((async (resolve, reject) => {
@@ -15,6 +32,8 @@ export class VideoRepositorio extends Repository<Video> {
 				if (dadosVideo.titulo)
 					video.setTitulo(dadosVideo.titulo);
 				video.setArquivo();
+				video.setCategoria(dadosVideo.categoria);
+				video.setTipo(dadosVideo.tipo);
 				
 				await this.insert(video).catch(e => reject(e));
 				await this.saveVideo(video.getArquivo(), dadosVideo.ext, dadosVideo.arquivo);
@@ -33,6 +52,8 @@ export class VideoRepositorio extends Repository<Video> {
 				await this.verificarExistencia(video);
 				if (dadosVideo.titulo)
 					video.setTitulo(dadosVideo.titulo);
+				video.setCategoria(dadosVideo.categoria);
+				video.setTipo(dadosVideo.tipo);
 				
 				await this.update(id, video).catch(e => reject(e));
 				resolve(video);

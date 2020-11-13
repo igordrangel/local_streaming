@@ -1,5 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { koala } from "koala-utils";
+import { VideoTipoEnum } from "../../../enums/video/video-tipo.enum";
+import { VideoCategoriaEnum } from "../../../enums/video/video-categoria.enum";
 
 @Entity({name: "local_streaming_videos"})
 export class Video {
@@ -7,10 +9,16 @@ export class Video {
 	private id: number;
 	
 	@Column({type: 'varchar', length: 150})
-	private titulo_original: string;
+	private tituloOriginal: string;
 	
 	@Column({type: 'varchar', length: 150})
 	private titulo?: string = null;
+	
+	@Column({type: 'int'})
+	private categoria: VideoCategoriaEnum;
+	
+	@Column({type: 'int'})
+	private tipo: VideoTipoEnum;
 	
 	@Column({type: 'varchar', length: 255})
 	private arquivo: string;
@@ -24,11 +32,11 @@ export class Video {
 	
 	//#region [TITULO ORIGINAL]
 	public getTituloOriginal(): string {
-		return this.titulo_original;
+		return this.tituloOriginal;
 	}
 	
 	public setTituloOriginal(tituloOriginal: string) {
-		this.titulo_original = tituloOriginal;
+		this.tituloOriginal = tituloOriginal;
 	}
 	
 	//#endregion
@@ -40,6 +48,28 @@ export class Video {
 	
 	public setTitulo(titulo?: string) {
 		this.titulo = titulo;
+	}
+	
+	//#endregion
+	
+	//#region [CATEGORIA]
+	public getCategoria(): VideoCategoriaEnum {
+		return this.categoria;
+	}
+	
+	public setCategoria(categoria: VideoCategoriaEnum) {
+		this.categoria = categoria;
+	}
+	
+	//#endregion
+	
+	//#region [TIPO]
+	public getTipo(): VideoTipoEnum {
+		return this.tipo;
+	}
+	
+	public setTipo(tipo: VideoTipoEnum) {
+		this.tipo = tipo;
 	}
 	
 	//#endregion
