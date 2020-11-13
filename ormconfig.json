@@ -1,0 +1,16 @@
+[
+  {
+    "name": "localhost",
+    "type": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "root",
+    "password": "",
+    "database": "local_streaming",
+    "synchronize": true,
+    "logging": false,
+    "entities": [
+      "dist/models/entity/**/*.js"
+    ]
+  }
+]
