@@ -1,5 +1,6 @@
 import { VideoCategoriaEnum } from "../../enums/video/video-categoria.enum";
 import { VideoTipoEnum } from "../../enums/video/video-tipo.enum";
+import { VideoArquivoInterface } from "./video-arquivo.interface";
 
 export interface VideoInterface {
 	id?: number;
@@ -7,6 +8,6 @@ export interface VideoInterface {
 	titulo?: string;
 	categoria: VideoCategoriaEnum;
 	tipo: VideoTipoEnum;
-	arquivo: string;
+	arquivo: VideoArquivoInterface;
 	ext: string;
 }

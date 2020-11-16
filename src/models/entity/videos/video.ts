@@ -2,6 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { koala } from "koala-utils";
 import { VideoTipoEnum } from "../../../enums/video/video-tipo.enum";
 import { VideoCategoriaEnum } from "../../../enums/video/video-categoria.enum";
+import { VideoArquivoInterface } from "../../../interfaces/video/video-arquivo.interface";
 
 @Entity({name: "local_streaming_videos"})
 export class Video {
@@ -22,6 +23,9 @@ export class Video {
 	
 	@Column({type: 'varchar', length: 255})
 	private arquivo: string;
+	
+	@Column({type: 'varchar', length: 10})
+	private tipoArquivo: string;
 	
 	//#region [ID]
 	public getId() {
@@ -79,8 +83,9 @@ export class Video {
 		return this.arquivo;
 	}
 	
-	public setArquivo() {
-		this.arquivo = koala('').string().random(255, true, true, true).getValue();
+	public setArquivo(arquivo: VideoArquivoInterface) {
+		this.tipoArquivo = arquivo.type;
+		this.arquivo = koala('').string().random(35, true, true, true).getValue();
 	}
 	
 	//#endregion

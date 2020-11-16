@@ -3,7 +3,6 @@ import { Video } from "../../entity/videos/video";
 import { VideoInterface } from "../../../interfaces/video/video.interface";
 import * as fs from "fs";
 import * as path from "path";
-import * as jsBase64 from "js-base64";
 import { VideoFilterInterface } from "../../../interfaces/video/video-filter.interface";
 import { koala } from "koala-utils";
 import { DbConnectionFactory } from "../../../factory/db-connection.factory";
@@ -35,12 +34,14 @@ export class VideoRepositorio extends Repository<Video> {
 				await this.verificarExistencia(video);
 				if (dadosVideo.titulo)
 					video.setTitulo(dadosVideo.titulo);
-				video.setArquivo();
+				video.setArquivo(dadosVideo.arquivo);
 				video.setCategoria(dadosVideo.categoria);
 				video.setTipo(dadosVideo.tipo);
 				
+				dadosVideo.ext = dadosVideo.arquivo.filename.split('.')[1];
+				
 				await queryRunner.manager.insert(Video, video).catch(e => reject(e));
-				await this.saveVideo(video.getArquivo(), dadosVideo.ext, dadosVideo.arquivo);
+				await this.saveVideo(video.getId().toString(), video.getArquivo(), dadosVideo.ext, dadosVideo.arquivo.base64);
 				await queryRunner.commitTransaction();
 				resolve(video);
 			} catch (e) {
@@ -82,13 +83,15 @@ export class VideoRepositorio extends Repository<Video> {
 		}
 	}
 	
-	private async saveVideo(filename: string, extensao: string, base64: string) {
-		return new Promise<void>(((resolve, reject) => {
-			const filePath = path.join(__dirname, `../../../../_arquivos/${filename}.${extensao}`);
-			fs.writeFile(filePath, jsBase64.decode(base64), {flag: 'w'}, (err) => {
-				if (err) reject(err);
-				resolve();
-			});
-		}))
+	private async saveVideo(dirname: string, filename: string, extensao: string, base64: string) {
+		return new Promise<void>(async (resolve, reject) => {
+			await fs.mkdirSync(path.join(__dirname, `../../../../_arquivos/${dirname}`));
+			await fs.writeFileSync(
+				path.join(__dirname, `../../../../_arquivos/${dirname}/${filename}.${extensao}`),
+				base64,
+				{flag: 'w', encoding: "base64"}
+			);
+			resolve();
+		})
 	}
 }

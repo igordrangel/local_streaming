@@ -96,7 +96,7 @@ module.exports = (api: Express) => {
 	 * @apiParam {string} titulo Titulo Personalizado do Video.
 	 * @apiParam {TipoVideoEnum} tipo Tipo do Video [1 = Filme, 2 = Série].
 	 * @apiParam {CategoriaVideoEnum} categoria Categoria do Video.
-	 * @apiParam {string} arquivo Arquivo do video em base64.
+	 * @apiParam {VideoArquivoInterface} arquivo Arquivo do video {filename: string; type: string; base64: string;}.
 	 * @apiParam {string} ext Extensão do video.
 	 *
 	 * @apiErrorExample {json} Error-Response:
@@ -118,8 +118,7 @@ module.exports = (api: Express) => {
 		check("tituloOriginal").notEmpty().withMessage("Título Original não informado."),
 		check("tipo").notEmpty().withMessage("Tipo não informado."),
 		check("categoria").notEmpty().withMessage("Categoria não informada."),
-		check("arquivo").notEmpty().withMessage("Arquivo não informado."),
-		check("ext").notEmpty().withMessage("Extensão não informada.")
+		check("arquivo").notEmpty().withMessage("Arquivo não informado.")
 	], async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
 		const dadosVideo = req.body as VideoInterface;
 		const videoRepositorio = DbConnectionFactory.getRepository(VideoRepositorio);
