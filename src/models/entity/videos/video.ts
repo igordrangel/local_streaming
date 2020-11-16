@@ -11,7 +11,7 @@ export class Video {
 	@Column({type: 'varchar', length: 150})
 	private tituloOriginal: string;
 	
-	@Column({type: 'varchar', length: 150})
+	@Column({type: 'varchar', length: 150, nullable: true})
 	private titulo?: string = null;
 	
 	@Column({type: 'int'})

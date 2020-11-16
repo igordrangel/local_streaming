@@ -116,7 +116,6 @@ module.exports = (api: Express) => {
 	 */
 	api.post("/video", [
 		check("tituloOriginal").notEmpty().withMessage("Título Original não informado."),
-		check("titulo").notEmpty().withMessage("Título não informado."),
 		check("tipo").notEmpty().withMessage("Tipo não informado."),
 		check("categoria").notEmpty().withMessage("Categoria não informada."),
 		check("arquivo").notEmpty().withMessage("Arquivo não informado."),
@@ -158,7 +157,6 @@ module.exports = (api: Express) => {
 	 */
 	api.put("/video/:id", [
 		check("tituloOriginal").notEmpty().withMessage("Título Original não informado."),
-		check("titulo").notEmpty().withMessage("Título não informado."),
 		check("tipo").notEmpty().withMessage("Tipo não informado."),
 		check("categoria").notEmpty().withMessage("Categoria não informada.")
 	], async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {

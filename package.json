@@ -7,7 +7,7 @@
     "start": "npm run build && node dist/local_streaming.js",
     "server": "nodemon dist/local_streaming.js",
     "build": "tsc && npm run doc",
-    "doc": "apidoc -c apidoc.json -i . -f src/controllers -f middleware/authentication -o ./dist/src/doc",
+    "doc": "apidoc -c apidoc.json -i . -f src/controllers -o ./dist/doc",
     "watch": "tsc -w"
   },
   "repository": {
@@ -35,6 +35,7 @@
     "dotenv-safe": "^8.2.0",
     "express": "^4.17.1",
     "express-validator": "^6.6.1",
+    "js-base64": "^3.6.0",
     "jsonwebtoken": "^8.5.1",
     "koala-utils": "^1.0.16",
     "mysql": "^2.18.1",

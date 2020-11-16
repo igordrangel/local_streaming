@@ -3,8 +3,10 @@ import { Video } from "../../entity/videos/video";
 import { VideoInterface } from "../../../interfaces/video/video.interface";
 import * as fs from "fs";
 import * as path from "path";
+import * as jsBase64 from "js-base64";
 import { VideoFilterInterface } from "../../../interfaces/video/video-filter.interface";
 import { koala } from "koala-utils";
+import { DbConnectionFactory } from "../../../factory/db-connection.factory";
 
 @EntityRepository(Video)
 export class VideoRepositorio extends Repository<Video> {
@@ -25,6 +27,8 @@ export class VideoRepositorio extends Repository<Video> {
 	
 	public cadastrar(dadosVideo: VideoInterface) {
 		return new Promise<Video>((async (resolve, reject) => {
+			const queryRunner = await DbConnectionFactory.getQueryRunner();
+			await queryRunner.startTransaction();
 			try {
 				const video = new Video();
 				video.setTituloOriginal(dadosVideo.tituloOriginal);
@@ -35,10 +39,12 @@ export class VideoRepositorio extends Repository<Video> {
 				video.setCategoria(dadosVideo.categoria);
 				video.setTipo(dadosVideo.tipo);
 				
-				await this.insert(video).catch(e => reject(e));
+				await queryRunner.manager.insert(Video, video).catch(e => reject(e));
 				await this.saveVideo(video.getArquivo(), dadosVideo.ext, dadosVideo.arquivo);
+				await queryRunner.commitTransaction();
 				resolve(video);
 			} catch (e) {
+				await queryRunner.rollbackTransaction();
 				reject(e);
 			}
 		}));
@@ -78,8 +84,8 @@ export class VideoRepositorio extends Repository<Video> {
 	
 	private async saveVideo(filename: string, extensao: string, base64: string) {
 		return new Promise<void>(((resolve, reject) => {
-			const filePath = path.join(__dirname, `../../../_arquivos/${filename}.${extensao}`);
-			fs.writeFile(filePath, base64, {encoding: "base64"}, (err) => {
+			const filePath = path.join(__dirname, `../../../../_arquivos/${filename}.${extensao}`);
+			fs.writeFile(filePath, jsBase64.decode(base64), {flag: 'w'}, (err) => {
 				if (err) reject(err);
 				resolve();
 			});
