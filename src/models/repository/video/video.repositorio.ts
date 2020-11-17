@@ -3,25 +3,32 @@ import { Video } from "../../entity/videos/video";
 import { VideoInterface } from "../../../interfaces/video/video.interface";
 import * as fs from "fs";
 import * as path from "path";
-import { VideoFilterInterface } from "../../../interfaces/video/video-filter.interface";
 import { koala } from "koala-utils";
 import { DbConnectionFactory } from "../../../factory/db-connection.factory";
 
 @EntityRepository(Video)
 export class VideoRepositorio extends Repository<Video> {
 	
-	public buscar(params: VideoFilterInterface) {
+	public buscar(params: any) {
+		const filter: any[] = [];
+		Object.keys(params).forEach((indexParams) => {
+			if (indexParams === 'titulo') {
+				filter.push({
+					tituloOriginal: In(koala(params[indexParams]).string().split(' ').getValue())
+				}, {
+					titulo: In(koala(params[indexParams]).string().split(' ').getValue())
+				});
+			} else {
+				if (!!params[indexParams]) {
+					filter.push({
+						indexParams: params[indexParams]
+					});
+				}
+			}
+		});
 		return this.find({
-			where: [{
-				titulo: In(koala(params.titulo ?? '').string().split(' ').getValue()),
-				categoria: params.categoria,
-				tipo: params.tipo
-			}, {
-				tituloOriginal: In(koala(params.titulo ?? '').string().split(' ').getValue()),
-				categoria: params.categoria,
-				tipo: params.tipo
-			}]
-		})
+			where: filter
+		});
 	}
 	
 	public cadastrar(dadosVideo: VideoInterface) {
