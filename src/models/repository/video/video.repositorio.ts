@@ -1,40 +1,32 @@
-import { EntityRepository, In, Not, Repository } from "typeorm";
+import { EntityRepository, Not } from "typeorm";
 import { Video } from "../../entity/videos/video";
 import { VideoInterface } from "../../../interfaces/video/video.interface";
 import * as fs from "fs";
 import * as path from "path";
-import { koala } from "koala-utils";
-import { DbConnectionFactory } from "../../../factory/db-connection.factory";
+import { RepositoryBase } from "../../../shared/RepositoryBase";
+import { VideoFilterInterface } from "../../../interfaces/video/video-filter.interface";
 
 @EntityRepository(Video)
-export class VideoRepositorio extends Repository<Video> {
+export class VideoRepositorio extends RepositoryBase<Video> {
 	
-	public buscar(params: any) {
-		const filter: any[] = [];
-		Object.keys(params).forEach((indexParams) => {
-			if (indexParams === 'titulo') {
-				filter.push({
-					tituloOriginal: In(koala(params[indexParams]).string().split(' ').getValue())
-				}, {
-					titulo: In(koala(params[indexParams]).string().split(' ').getValue())
-				});
-			} else {
-				if (!!params[indexParams]) {
-					filter.push({
-						indexParams: params[indexParams]
-					});
-				}
-			}
-		});
-		return this.find({
-			where: filter
-		});
+	constructor() {
+		super(Video);
+	}
+	
+	public async buscar(params: VideoFilterInterface) {
+		return await this.search()
+		                 .or([
+			                 {collumName: 'tituloOriginal', comparator: "like", value: params.titulo},
+			                 {collumName: 'titulo', comparator: "like", value: params.titulo}
+		                 ])
+		                 .and({collumName: 'categoria', comparator: "=", value: params.categoria})
+		                 .and({collumName: 'tipo', comparator: "=", value: params.tipo})
+		                 .getData();
 	}
 	
 	public cadastrar(dadosVideo: VideoInterface) {
 		return new Promise<Video>((async (resolve, reject) => {
-			const queryRunner = await DbConnectionFactory.getQueryRunner();
-			await queryRunner.startTransaction();
+			await this.beginTransaction();
 			try {
 				const video = new Video();
 				video.setTituloOriginal(dadosVideo.tituloOriginal);
@@ -47,12 +39,12 @@ export class VideoRepositorio extends Repository<Video> {
 				
 				dadosVideo.ext = dadosVideo.arquivo.filename.split('.')[1];
 				
-				await queryRunner.manager.insert(Video, video).catch(e => reject(e));
+				await this.saveData(video);
 				await this.saveVideo(video.getId().toString(), video.getArquivo(), dadosVideo.ext, dadosVideo.arquivo.base64);
-				await queryRunner.commitTransaction();
+				await this.commit();
 				resolve(video);
 			} catch (e) {
-				await queryRunner.rollbackTransaction();
+				await this.rollback();
 				reject(e);
 			}
 		}));
@@ -60,6 +52,7 @@ export class VideoRepositorio extends Repository<Video> {
 	
 	public async editar(id: number, dadosVideo: VideoInterface) {
 		return new Promise<Video>((async (resolve, reject) => {
+			await this.beginTransaction();
 			try {
 				const video = await this.findOne(id);
 				video.setTituloOriginal(dadosVideo.tituloOriginal);
@@ -69,9 +62,11 @@ export class VideoRepositorio extends Repository<Video> {
 				video.setCategoria(dadosVideo.categoria);
 				video.setTipo(dadosVideo.tipo);
 				
-				await this.update(id, video).catch(e => reject(e));
+				await this.saveData(video).catch(e => reject(e));
+				await this.commit();
 				resolve(video);
 			} catch (e) {
+				await this.rollback();
 				reject(e);
 			}
 		}));
