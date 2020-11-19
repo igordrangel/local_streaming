@@ -16,8 +16,8 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 	
 	public async buscar(params: VideoFilterInterface) {
 		return await this.search()
-		                 .addJoins([
-			                 {target: VideoArquivo, alias: 'a', condition: 'a.video = e.id'}
+		                 .addJoinsOnList([
+			                 {mapToProperty: 'e.arquivos', target: VideoArquivo, alias: 'a', condition: 'a.video = e.id'}
 		                 ])
 		                 .or([
 			                 {collumName: 'tituloOriginal', comparator: "like", value: params.titulo},

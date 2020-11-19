@@ -22,7 +22,9 @@ export class Video {
 	@Column({type: 'int'})
 	private tipo: VideoTipoEnum;
 	
-	@OneToMany(() => VideoArquivo, arquivo => arquivo.getVideo)
+	@OneToMany(() => VideoArquivo, arquivo => arquivo.getVideo, {
+		eager: true
+	})
 	private arquivos: VideoArquivo[];
 	
 	//#region [ID]
