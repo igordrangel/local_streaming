@@ -7,7 +7,14 @@ export class Filter<TypeEntity> extends FilterBase<TypeEntity> {
 		super(qb);
 	}
 	
-	public addJoins(joins: []) {
+	public addJoins(joins: {
+		target: any;
+		alias: string;
+		condition: string;
+	}[]) {
+		joins.forEach(join => {
+			this.qb.leftJoinAndSelect(join.target, join.alias, join.condition);
+		});
 		return this;
 	}
 }

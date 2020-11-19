@@ -30,9 +30,7 @@ export abstract class RepositoryBase<TypeEntity> extends Repository<TypeEntity> 
 	
 	public async send(entity: TypeEntity) {
 		try {
-			await this.queryRunnerBase.manager.save(entity, {
-				transaction: true
-			}).catch(e => {
+			await this.queryRunnerBase.manager.save(entity).catch(e => {
 				throw e;
 			});
 		} catch (e) {

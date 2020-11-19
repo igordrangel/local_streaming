@@ -4,43 +4,40 @@ import { Video } from "./video";
 @Entity({name: "local_streaming_videos_arquivos"})
 export class VideoArquivo {
 	@PrimaryGeneratedColumn()
-	private _id: number;
-	
-	get id() {
-		return this._id;
-	}
-	
-	@ManyToOne(type => Video, video => video.arquivos)
-	@JoinColumn({name: 'id_video'})
-	private _video: Video;
-	
-	get video(): Video {
-		return this._video;
-	}
-	
-	set video(value: Video) {
-		this._video = value;
-	}
-	
+	private id: number;
+	@ManyToOne(() => Video, video => video.getArquivos)
+	@JoinColumn({name: 'id_video', referencedColumnName: 'id'})
+	private video: Video;
 	@Column({type: 'varchar', length: 100})
-	private _filename: string;
-	
-	get filename(): string {
-		return this._filename;
-	}
-	
-	set filename(value: string) {
-		this._filename = value;
-	}
-	
+	private filename: string;
 	@Column({type: 'varchar', length: 10})
-	private _type: string;
+	private type: string;
 	
-	get type(): string {
-		return this._type;
+	public getId(): number {
+		return this.id;
 	}
 	
-	set type(value: string) {
-		this._type = value;
+	public getVideo(): Video {
+		return this.video;
+	}
+	
+	public setVideo(video: Video) {
+		this.video = video;
+	}
+	
+	public getFilename(): string {
+		return this.filename;
+	}
+	
+	public setFilename(filename: string) {
+		this.filename = filename;
+	}
+	
+	public getType(): string {
+		return this.type;
+	}
+	
+	public setType(type: string) {
+		this.type = type;
 	}
 }

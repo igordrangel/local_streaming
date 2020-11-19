@@ -22,10 +22,8 @@ export class Video {
 	@Column({type: 'int'})
 	private tipo: VideoTipoEnum;
 	
-	@OneToMany(type => VideoArquivo, arquivo => arquivo.video, {
-		cascade: ['insert', "update"]
-	})
-	private _arquivos: VideoArquivo[];
+	@OneToMany(() => VideoArquivo, arquivo => arquivo.getVideo)
+	private arquivos: VideoArquivo[];
 	
 	//#region [ID]
 	public getId() {
@@ -79,22 +77,21 @@ export class Video {
 	//#endregion
 	
 	//#region [ARQUIVOS]
-	get arquivos(): VideoArquivo[] {
-		return this._arquivos;
+	public getArquivos(): VideoArquivo[] {
+		return this.arquivos ?? [];
 	}
 	
 	public addArquivo(arquivo: VideoArquivoInterface): VideoArquivo {
-		if (!this._arquivos) this._arquivos = [];
 		const videoArquivo = new VideoArquivo();
-		videoArquivo.filename = koala('')
+		videoArquivo.setFilename(koala('')
 			.string()
 			.random(35, true, true, true)
 			.concat(`.${arquivo.filename.split('.')[1]}`)
-			.getValue();
-		videoArquivo.type = arquivo.type;
-		this._arquivos.push(videoArquivo);
+			.getValue());
+		videoArquivo.setType(arquivo.type);
+		videoArquivo.setVideo(this);
+		this.getArquivos().push(videoArquivo);
 		return videoArquivo;
 	}
-	
 	//#endregion
 }

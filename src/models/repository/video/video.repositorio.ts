@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { RepositoryBase } from "../../../shared/RepositoryBase";
 import { VideoFilterInterface } from "../../../interfaces/video/video-filter.interface";
+import { VideoArquivo } from "../../entity/videos/video-arquivo";
 
 @EntityRepository(Video)
 export class VideoRepositorio extends RepositoryBase<Video> {
@@ -15,6 +16,9 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 	
 	public async buscar(params: VideoFilterInterface) {
 		return await this.search()
+		                 .addJoins([
+			                 {target: VideoArquivo, alias: 'a', condition: 'a.video = e.id'}
+		                 ])
 		                 .or([
 			                 {collumName: 'tituloOriginal', comparator: "like", value: params.titulo},
 			                 {collumName: 'titulo', comparator: "like", value: params.titulo}
@@ -44,11 +48,15 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 				if (dadosVideo.arquivos) {
 					for (let arquivo of dadosVideo.arquivos.values()) {
 						dadosVideo.ext = arquivo.filename.split('.')[1];
-						await this.saveVideo(video.getId().toString(), video.addArquivo(arquivo).filename, dadosVideo.ext, arquivo.base64);
+						const videoArquivo = video.addArquivo(arquivo);
+						await this.queryRunnerBase.manager.save(videoArquivo);
+						await this.saveVideo(video.getId().toString(), videoArquivo.getFilename(), dadosVideo.ext, arquivo.base64);
 					}
 				} else {
 					dadosVideo.ext = dadosVideo.arquivo.filename.split('.')[1];
-					await this.saveVideo(video.getId().toString(), video.addArquivo(dadosVideo.arquivo).filename, dadosVideo.ext, dadosVideo.arquivo.base64);
+					const videoArquivo = video.addArquivo(dadosVideo.arquivo);
+					await this.queryRunnerBase.manager.save(videoArquivo);
+					await this.saveVideo(video.getId().toString(), videoArquivo.getFilename(), dadosVideo.ext, dadosVideo.arquivo.base64);
 				}
 				
 				await this.send(video);
