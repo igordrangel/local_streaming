@@ -28,18 +28,13 @@ export abstract class RepositoryBase<TypeEntity> extends Repository<TypeEntity> 
 		await this.queryRunnerBase.rollbackTransaction();
 	}
 	
-	public async saveData(entity: TypeEntity) {
+	public async send(entity: TypeEntity) {
 		try {
-			const tmpEntity = entity as any;
-			if (entity.hasOwnProperty('id') && tmpEntity.id) {
-				await this.queryRunnerBase.manager.update(this.targetEntity, tmpEntity.id, entity).catch(e => {
-					throw e;
-				});
-			} else {
-				await this.queryRunnerBase.manager.insert(this.targetEntity, entity).catch(e => {
-					throw e;
-				});
-			}
+			await this.queryRunnerBase.manager.save(entity, {
+				transaction: true
+			}).catch(e => {
+				throw e;
+			});
 		} catch (e) {
 			throw e;
 		}

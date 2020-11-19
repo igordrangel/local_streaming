@@ -9,5 +9,6 @@ export interface VideoInterface {
 	categoria: VideoCategoriaEnum;
 	tipo: VideoTipoEnum;
 	arquivo: VideoArquivoInterface;
+	arquivos: VideoArquivoInterface[];
 	ext: string;
 }

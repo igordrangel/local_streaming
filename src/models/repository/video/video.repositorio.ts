@@ -24,23 +24,34 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 		                 .getData();
 	}
 	
-	public cadastrar(dadosVideo: VideoInterface) {
+	public enviar(dadosVideo: VideoInterface) {
 		return new Promise<Video>((async (resolve, reject) => {
 			await this.beginTransaction();
 			try {
-				const video = new Video();
+				let video = new Video();
+				if (dadosVideo.id) {
+					video = await this.findOne(dadosVideo.id);
+				}
 				video.setTituloOriginal(dadosVideo.tituloOriginal);
 				await this.verificarExistencia(video);
 				if (dadosVideo.titulo)
 					video.setTitulo(dadosVideo.titulo);
-				video.setArquivo(dadosVideo.arquivo);
 				video.setCategoria(dadosVideo.categoria);
 				video.setTipo(dadosVideo.tipo);
 				
-				dadosVideo.ext = dadosVideo.arquivo.filename.split('.')[1];
+				await this.send(video);
 				
-				await this.saveData(video);
-				await this.saveVideo(video.getId().toString(), video.getArquivo(), dadosVideo.ext, dadosVideo.arquivo.base64);
+				if (dadosVideo.arquivos) {
+					for (let arquivo of dadosVideo.arquivos.values()) {
+						dadosVideo.ext = arquivo.filename.split('.')[1];
+						await this.saveVideo(video.getId().toString(), video.addArquivo(arquivo).filename, dadosVideo.ext, arquivo.base64);
+					}
+				} else {
+					dadosVideo.ext = dadosVideo.arquivo.filename.split('.')[1];
+					await this.saveVideo(video.getId().toString(), video.addArquivo(dadosVideo.arquivo).filename, dadosVideo.ext, dadosVideo.arquivo.base64);
+				}
+				
+				await this.send(video);
 				await this.commit();
 				resolve(video);
 			} catch (e) {
@@ -50,26 +61,16 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 		}));
 	}
 	
-	public async editar(id: number, dadosVideo: VideoInterface) {
-		return new Promise<Video>((async (resolve, reject) => {
-			await this.beginTransaction();
-			try {
-				const video = await this.findOne(id);
-				video.setTituloOriginal(dadosVideo.tituloOriginal);
-				await this.verificarExistencia(video);
-				if (dadosVideo.titulo)
-					video.setTitulo(dadosVideo.titulo);
-				video.setCategoria(dadosVideo.categoria);
-				video.setTipo(dadosVideo.tipo);
-				
-				await this.saveData(video).catch(e => reject(e));
-				await this.commit();
-				resolve(video);
-			} catch (e) {
-				await this.rollback();
-				reject(e);
-			}
-		}));
+	public async excluir(id: number) {
+		await this.beginTransaction();
+		try {
+			await this.delete(id);
+			await this.removeVideo(id.toString());
+			await this.commit();
+		} catch (e) {
+			await this.rollback();
+			throw e;
+		}
 	}
 	
 	private async verificarExistencia(video: Video) {
@@ -95,5 +96,9 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 			);
 			resolve();
 		})
+	}
+	
+	private async removeVideo(dirname: string) {
+		await fs.rmdirSync(path.join(__dirname, `../../../../_arquivos/${dirname}`), {recursive: true});
 	}
 }

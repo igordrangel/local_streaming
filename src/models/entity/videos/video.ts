@@ -1,8 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { koala } from "koala-utils";
 import { VideoTipoEnum } from "../../../enums/video/video-tipo.enum";
 import { VideoCategoriaEnum } from "../../../enums/video/video-categoria.enum";
 import { VideoArquivoInterface } from "../../../interfaces/video/video-arquivo.interface";
+import { VideoArquivo } from "./video-arquivo";
 
 @Entity({name: "local_streaming_videos"})
 export class Video {
@@ -21,11 +22,10 @@ export class Video {
 	@Column({type: 'int'})
 	private tipo: VideoTipoEnum;
 	
-	@Column({type: 'varchar', length: 255})
-	private arquivo: string;
-	
-	@Column({type: 'varchar', length: 10})
-	private tipoArquivo: string;
+	@OneToMany(type => VideoArquivo, arquivo => arquivo.video, {
+		cascade: ['insert', "update"]
+	})
+	private _arquivos: VideoArquivo[];
 	
 	//#region [ID]
 	public getId() {
@@ -78,14 +78,22 @@ export class Video {
 	
 	//#endregion
 	
-	//#region [ARQUIVO]
-	public getArquivo() {
-		return this.arquivo;
+	//#region [ARQUIVOS]
+	get arquivos(): VideoArquivo[] {
+		return this._arquivos;
 	}
 	
-	public setArquivo(arquivo: VideoArquivoInterface) {
-		this.tipoArquivo = arquivo.type;
-		this.arquivo = koala('').string().random(35, true, true, true).getValue();
+	public addArquivo(arquivo: VideoArquivoInterface): VideoArquivo {
+		if (!this._arquivos) this._arquivos = [];
+		const videoArquivo = new VideoArquivo();
+		videoArquivo.filename = koala('')
+			.string()
+			.random(35, true, true, true)
+			.concat(`.${arquivo.filename.split('.')[1]}`)
+			.getValue();
+		videoArquivo.type = arquivo.type;
+		this._arquivos.push(videoArquivo);
+		return videoArquivo;
 	}
 	
 	//#endregion

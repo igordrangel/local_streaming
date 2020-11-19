@@ -125,7 +125,7 @@ module.exports = (api: Express) => {
 		res.status(200).send({
 			error: false,
 			message: "Video incluído com sucesso!",
-			data: await videoRepositorio.cadastrar(dadosVideo)
+			data: await videoRepositorio.enviar(dadosVideo)
 		} as ResponseInterface);
 	}));
 	
@@ -161,11 +161,42 @@ module.exports = (api: Express) => {
 	], async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
 		const {id} = req.params;
 		const dadosVideo = req.body as VideoInterface;
+		dadosVideo.id = parseInt(id);
 		const videoRepositorio = DbConnectionFactory.getRepository(VideoRepositorio);
 		res.status(200).send({
 			error: false,
 			message: "Video atualizado com sucesso!",
-			data: await videoRepositorio.editar(parseInt(id), dadosVideo)
+			data: await videoRepositorio.enviar(dadosVideo)
+		} as ResponseInterface);
+	}));
+	
+	/**
+	 * @api {delete} /video/:id Excluir Video.
+	 * @apiDescription Excluir video.
+	 * @apiGroup Video
+	 *
+	 * @apiErrorExample {json} Error-Response:
+	 *     HTTP/2 4XX | 5XX
+	 *     {
+	 *       "error": "true",
+	 *       "message": "..."
+	 *     }
+	 * @apiSuccessExample {json} Success-Response:
+	 *     HTTP/2 200 OK
+	 *     {
+	 *       "error": false,
+	 *       "message": "Video removido com sucesso!"
+	 *     }
+	 *
+	 * @apiVersion 1.0.0
+	 */
+	api.delete("/video/:id", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
+		const {id} = req.params;
+		const videoRepositorio = DbConnectionFactory.getRepository(VideoRepositorio);
+		await videoRepositorio.excluir(parseInt(id));
+		res.status(200).send({
+			error: false,
+			message: "Video removido com sucesso!"
 		} as ResponseInterface);
 	}));
 }
