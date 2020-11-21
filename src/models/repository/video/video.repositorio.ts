@@ -1,11 +1,11 @@
 import { EntityRepository, Not } from "typeorm";
-import { Video } from "../../entity/videos/video";
 import { VideoInterface } from "../../../interfaces/video/video.interface";
 import * as fs from "fs";
 import * as path from "path";
 import { RepositoryBase } from "../../../shared/RepositoryBase";
 import { VideoFilterInterface } from "../../../interfaces/video/video-filter.interface";
-import { VideoArquivo } from "../../entity/videos/video-arquivo";
+import { VideoArquivoRepositorio } from "./video-arquivo.repositorio";
+import Video from "../../entity/videos/video";
 
 @EntityRepository(Video)
 export class VideoRepositorio extends RepositoryBase<Video> {
@@ -16,9 +16,6 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 	
 	public async buscar(params: VideoFilterInterface) {
 		return await this.search()
-		                 .addJoinsOnList([
-			                 {mapToProperty: 'e.arquivos', target: VideoArquivo, alias: 'a', condition: 'a.video = e.id'}
-		                 ])
 		                 .or([
 			                 {collumName: 'tituloOriginal', comparator: "like", value: params.titulo},
 			                 {collumName: 'titulo', comparator: "like", value: params.titulo}
@@ -30,35 +27,37 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 	
 	public enviar(dadosVideo: VideoInterface) {
 		return new Promise<Video>((async (resolve, reject) => {
+			const videoArquivoRepositorio = new VideoArquivoRepositorio();
 			await this.beginTransaction();
 			try {
 				let video = new Video();
 				if (dadosVideo.id) {
 					video = await this.findOne(dadosVideo.id);
 				}
-				video.setTituloOriginal(dadosVideo.tituloOriginal);
+				video.tituloOriginal = dadosVideo.tituloOriginal;
 				await this.verificarExistencia(video);
 				if (dadosVideo.titulo)
-					video.setTitulo(dadosVideo.titulo);
-				video.setCategoria(dadosVideo.categoria);
-				video.setTipo(dadosVideo.tipo);
+					video.titulo = dadosVideo.titulo;
+				video.categoria = dadosVideo.categoria;
+				video.tipo = dadosVideo.tipo;
 				
 				await this.send(video);
 				
+				const arquivos = [];
 				if (dadosVideo.arquivos) {
 					for (let arquivo of dadosVideo.arquivos.values()) {
 						dadosVideo.ext = arquivo.filename.split('.')[1];
-						const videoArquivo = video.addArquivo(arquivo);
-						await this.queryRunnerBase.manager.save(videoArquivo);
-						await this.saveVideo(video.getId().toString(), videoArquivo.getFilename(), dadosVideo.ext, arquivo.base64);
+						const videoArquivo = videoArquivoRepositorio.enviar(arquivo);
+						arquivos.push(videoArquivo)
+						await this.saveVideo(video.id.toString(), videoArquivo.filename, dadosVideo.ext, arquivo.base64);
 					}
 				} else {
 					dadosVideo.ext = dadosVideo.arquivo.filename.split('.')[1];
-					const videoArquivo = video.addArquivo(dadosVideo.arquivo);
-					await this.queryRunnerBase.manager.save(videoArquivo);
-					await this.saveVideo(video.getId().toString(), videoArquivo.getFilename(), dadosVideo.ext, dadosVideo.arquivo.base64);
+					const videoArquivo = videoArquivoRepositorio.enviar(dadosVideo.arquivo);
+					arquivos.push(videoArquivo)
+					await this.saveVideo(video.id.toString(), videoArquivo.filename, dadosVideo.ext, dadosVideo.arquivo.base64);
 				}
-				
+				video.videoArquivos = arquivos;
 				await this.send(video);
 				await this.commit();
 				resolve(video);
@@ -84,8 +83,8 @@ export class VideoRepositorio extends RepositoryBase<Video> {
 	private async verificarExistencia(video: Video) {
 		const qtd = await this.count({
 			where: {
-				id: Not(video.getId()),
-				tituloOriginal: video.getTituloOriginal()
+				id: Not(video.id),
+				tituloOriginal: video.tituloOriginal
 			}
 		});
 		
