@@ -1,44 +1,28 @@
 {
   "name": "local_streaming",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "npm run build && node dist/local_streaming.js",
-    "server": "nodemon dist/local_streaming.js",
-    "build": "tsc && npm run doc",
-    "doc": "apidoc -c apidoc.json -i . -f src/controllers -o ./dist/doc",
-    "watch": "tsc -w"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/igordrangel/local_streaming.git"
-  },
-  "keywords": [],
-  "author": "Igor Dias Rangel",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/igordrangel/local_streaming/issues"
-  },
-  "homepage": "https://github.com/igordrangel/local_streaming#readme",
+  "version": "0.0.1",
+  "description": "Awesome project developed with TypeORM.",
   "devDependencies": {
-    "@types/express": "^4.17.8",
-    "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.14.6",
-    "nodemon": "^2.0.6",
-    "typescript": "^4.0.5"
+    "@types/express": "^4.17.9",
+    "@types/node": "^14.14.9",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.1.2"
   },
   "dependencies": {
+    "body-parser": "^1.19.0",
     "connect-timeout": "^1.9.0",
     "consign": "^0.1.6",
     "cors": "^2.8.5",
-    "dotenv-safe": "^8.2.0",
-    "express": "^4.17.1",
+    "express": "^4.15.4",
     "express-validator": "^6.6.1",
-    "jsonwebtoken": "^8.5.1",
-    "koala-utils": "^1.0.16",
-    "mysql": "^2.18.1",
+    "koala-utils": "^1.0.17",
+    "pg": "^8.5.1",
     "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.29"
+    "typeorm": "0.2.29"
+  },
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "typeorm": "node --require ts-node/register ./node_modules/typeorm/cli.js",
+    "doc": "apidoc -c apidoc.json -i . -f src/controller -o ./src/doc"
   }
 }

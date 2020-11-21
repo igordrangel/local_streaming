@@ -1,16 +1,19 @@
-[
-  {
-    "name": "localhost",
-    "type": "mysql",
-    "host": "localhost",
-    "port": 3306,
-    "username": "root",
-    "password": "",
-    "database": "local_streaming",
-    "synchronize": true,
-    "logging": false,
-    "entities": [
-      "dist/models/entity/**/*.js"
-    ]
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "local_streaming",
+  "password": "igor_root@10",
+  "database": "local_streaming",
+  "synchronize": true,
+  "entities": [
+    "src/entity/**/*.ts"
+  ],
+  "migrations": [
+    "src/migration/**/*.ts"
+  ],
+  "cli": {
+    "entitiesDir": "src/entity",
+    "migrationsDir": "src/migration"
   }
-]
+}
