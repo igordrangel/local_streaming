@@ -59,9 +59,9 @@ module.exports = (api: Express) => {
 	 *
 	 * @apiVersion 1.0.0
 	 */
-	api.get("/video/:filename", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
-		const {filename} = req.params;
-		const movieFile = path.join(__dirname, `../../../_arquivos/${filename}`);
+	api.get("/video/:id/:filename", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
+		const {id, filename} = req.params;
+		const movieFile = path.join(__dirname, `../../../_arquivos/${id}/${filename}`);
 		fs.stat(movieFile, (err, stats) => {
 			if (err) {
 				return res.status(404).send({
