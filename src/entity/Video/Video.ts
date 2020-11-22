@@ -8,7 +8,7 @@ export default class Video {
 	@PrimaryGeneratedColumn("increment")
 	id: number;
 	
-	@Column({length: 150, unique: true, nullable: false})
+	@Column({length: 150, nullable: false})
 	tituloOriginal: string;
 	
 	@Column({length: 150, nullable: true})
@@ -20,9 +20,6 @@ export default class Video {
 	@Column({nullable: true})
 	tipo: VideoTipoEnum;
 	
-	@OneToMany(type => VideoArquivo, video => Video, {
-		eager: true,
-		cascade: true
-	})
+	@OneToMany(type => VideoArquivo, video => Video)
 	arquivos: VideoArquivo[];
 }

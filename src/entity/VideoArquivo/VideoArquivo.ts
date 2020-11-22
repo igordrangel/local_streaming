@@ -12,6 +12,12 @@ export default class VideoArquivo {
 	@Column({length: 10, nullable: false})
 	type: string;
 	
-	@ManyToOne(type => Video, arquivos => VideoArquivo)
+	@ManyToOne(type => Video, arquivos => VideoArquivo, {
+		eager: true,
+		cascade: true,
+		onDelete: 'CASCADE'
+	})
 	video: Video;
+	
+	base64: string;
 }

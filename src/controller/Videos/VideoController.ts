@@ -8,6 +8,8 @@ import Video from "../../entity/Video/Video";
 import VideoRepository from "../../repository/Video/VideoRepository";
 import { BaseController } from "../../config/BaseController";
 import { getCustomRepository } from "typeorm";
+import VideoArquivoRepository from "../../repository/Video/VideoArquivoRepository";
+import VideoArquivo from "../../entity/VideoArquivo/VideoArquivo";
 
 module.exports = (api: Express) => {
 	/**
@@ -90,10 +92,6 @@ module.exports = (api: Express) => {
 	 * @apiDescription Incluir novo video.
 	 * @apiGroup Video
 	 *
-	 * @apiParam {string} tituloOriginal Título Original do Video.
-	 * @apiParam {string} titulo Titulo Personalizado do Video.
-	 * @apiParam {TipoVideoEnum} tipo Tipo do Video [1 = Filme, 2 = Série].
-	 * @apiParam {CategoriaVideoEnum} categoria Categoria do Video.
 	 * @apiParam {VideoArquivoInterface} arquivo Arquivo do video {filename: string; type: string; base64: string;}.
 	 * @apiParam {string} ext Extensão do video.
 	 *
@@ -112,25 +110,21 @@ module.exports = (api: Express) => {
 	 *
 	 * @apiVersion 1.0.0
 	 */
-	api.post("/video", [
-		check("tituloOriginal").notEmpty().withMessage("Título Original não informado."),
-		check("tipo").notEmpty().withMessage("Tipo não informado."),
-		check("categoria").notEmpty().withMessage("Categoria não informada."),
-		check("arquivos").notEmpty().withMessage("Arquivo não informado.")
-	], async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
-		const video = req.body as Video;
+	api.post("/video", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
+		const arquivos = req.body as VideoArquivo[];
 		res.status(200).send({
 			error: false,
 			message: "Video incluído com sucesso!",
-			data: await getCustomRepository(VideoRepository).enviar(video)
+			data: await getCustomRepository(VideoArquivoRepository).enviar(arquivos)
 		} as ResponseInterface);
 	}));
 	
 	/**
-	 * @api {put} /video/:id Editar Video.
+	 * @api {put} /video Editar Video.
 	 * @apiDescription Editar video.
 	 * @apiGroup Video
 	 *
+	 * @apiParam {Int} id
 	 * @apiParam {String} tituloOriginal Título Original do Video.
 	 * @apiParam {String} titulo Titulo Personalizado do Video.
 	 * @apiParam {TipoVideoEnum} tipo Tipo do Video [1 = Filme, 2 = Série].
@@ -151,7 +145,8 @@ module.exports = (api: Express) => {
 	 *
 	 * @apiVersion 1.0.0
 	 */
-	api.put("/video/:id", [
+	api.put("/video", [
+		check("id").notEmpty().withMessage("Id não informado."),
 		check("tituloOriginal").notEmpty().withMessage("Título Original não informado."),
 		check("tipo").notEmpty().withMessage("Tipo não informado."),
 		check("categoria").notEmpty().withMessage("Categoria não informada.")

@@ -56,6 +56,10 @@ export abstract class FilterBase<TypeEntity> {
 		return this.qb.getMany();
 	}
 	
+	public count() {
+		return this.qb.getCount();
+	}
+	
 	private generateParseString(collumName: string) {
 		let parseStringName = collumName;
 		let numParam = 0;
