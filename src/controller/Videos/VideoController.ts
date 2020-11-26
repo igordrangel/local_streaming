@@ -43,6 +43,11 @@ module.exports = (api: Express) => {
 		res.status(200).send(await getCustomRepository(VideoRepository).buscar(params));
 	}));
 	
+	api.get("/video/:id", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
+		const {id} = req.params;
+		res.status(200).send(await getCustomRepository(VideoRepository).getPorId(parseInt(id)));
+	}));
+	
 	/**
 	 * @api {get} /video/:filename Visualizar Video.
 	 * @apiDescription Visualizar video.

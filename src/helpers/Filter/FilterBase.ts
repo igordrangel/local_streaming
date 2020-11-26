@@ -56,6 +56,10 @@ export abstract class FilterBase<TypeEntity> {
 		return this.qb.getMany();
 	}
 	
+	public getOne() {
+		return this.qb.getOne();
+	}
+	
 	public count() {
 		return this.qb.getCount();
 	}

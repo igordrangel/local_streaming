@@ -3,18 +3,31 @@ import * as fs from "fs";
 import * as path from "path";
 import { EntityRepository, Repository } from "typeorm";
 import FilterService from "../../helpers/Filter/FilterService";
+import VideoArquivo from "../../entity/VideoArquivo/VideoArquivo";
 
 @EntityRepository(Video)
 export default class VideoRepository extends Repository<Video> {
 	
+	public getPorId(id: number) {
+		return FilterService.search(Video)
+		                    .addJoinsOnList([
+			                    {mapToProperty: 'e.arquivos', target: VideoArquivo, alias: 'a', condition: 'a.video = e.id'}
+		                    ])
+		                    .and({collumName: 'e.id', comparator: "=", value: id})
+		                    .getOne();
+	}
+	
 	public buscar(params: Video) {
 		return FilterService.search(Video)
-		                    .or([
-			                    {collumName: 'tituloOriginal', comparator: "like", value: params.titulo},
-			                    {collumName: 'titulo', comparator: "like", value: params.titulo}
+		                    .addJoinsOnList([
+			                    {mapToProperty: 'e.arquivos', target: VideoArquivo, alias: 'a', condition: 'a.video = e.id'}
 		                    ])
-		                    .and({collumName: 'categoria', comparator: "=", value: params.categoria})
-		                    .and({collumName: 'tipo', comparator: "=", value: params.tipo})
+		                    .or([
+			                    {collumName: 'e.tituloOriginal', comparator: "like", value: params.titulo},
+			                    {collumName: 'e.titulo', comparator: "like", value: params.titulo}
+		                    ])
+		                    .and({collumName: 'e.categoria', comparator: "=", value: params.categoria})
+		                    .and({collumName: 'e.tipo', comparator: "=", value: params.tipo})
 		                    .getData();
 	}
 	
