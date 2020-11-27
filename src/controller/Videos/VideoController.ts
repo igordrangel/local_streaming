@@ -2,7 +2,6 @@ import * as fs from "fs";
 import * as path from "path";
 
 import { Express, Request, Response } from "express";
-import { check } from "express-validator";
 import { ResponseInterface } from "../../config/interfaces/response.interface";
 import Video from "../../entity/Video/Video";
 import VideoRepository from "../../repository/Video/VideoRepository";
@@ -150,17 +149,12 @@ module.exports = (api: Express) => {
 	 *
 	 * @apiVersion 1.0.0
 	 */
-	api.put("/video", [
-		check("id").notEmpty().withMessage("Id não informado."),
-		check("tituloOriginal").notEmpty().withMessage("Título Original não informado."),
-		check("tipo").notEmpty().withMessage("Tipo não informado."),
-		check("categoria").notEmpty().withMessage("Categoria não informada.")
-	], async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
-		const video = req.body as Video;
+	api.put("/video", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
+		const arquivos = req.body as VideoArquivo[];
 		res.status(200).send({
 			error: false,
 			message: "Video atualizado com sucesso!",
-			data: await getCustomRepository(VideoRepository).enviar(video)
+			data: await getCustomRepository(VideoArquivoRepository).enviar(arquivos)
 		} as ResponseInterface);
 	}));
 	
