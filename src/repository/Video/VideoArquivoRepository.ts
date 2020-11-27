@@ -11,7 +11,10 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 			try {
 				for (let arquivo of arquivos.values()) {
 					await this.save(arquivo);
-					await this.saveVideo(arquivo.video.id.toString(), arquivo.filename, arquivo.base64);
+					await this.saveFile(arquivo.video.id.toString(), arquivo.filename, arquivo.base64);
+					if (arquivo.legendaFilename) {
+						await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);
+					}
 				}
 				resolve(arquivos);
 			} catch (e) {
@@ -20,7 +23,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 		}));
 	}
 	
-	private async saveVideo(dirname: string, filename: string, base64: string) {
+	private async saveFile(dirname: string, filename: string, base64: string) {
 		return new Promise<void>(async (resolve, reject) => {
 			await fs.mkdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`));
 			await fs.writeFileSync(
