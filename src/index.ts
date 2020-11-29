@@ -7,7 +7,7 @@ import * as fs from "fs";
 createConnection().then(async connection => {
 	const customExpress = require("./config/custom-express");
 	const api: Express = customExpress();
-	const server = api.listen(3000, async () => {
+	const server = api.listen(80, async () => {
 		const dirVideosPath = path.join(__dirname, '../_arquivos')
 		if (!fs.existsSync(dirVideosPath)) {
 			fs.mkdirSync(dirVideosPath);
