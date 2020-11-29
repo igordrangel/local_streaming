@@ -13,7 +13,7 @@ createConnection().then(async connection => {
 			fs.mkdirSync(dirVideosPath);
 		}
 		console.log("Servidor LocalStreaming iniciado na porta 3000.");
-		console.log("Abra http://localhost:3000 para visualizar a documentação.");
+		console.log("Abra http://localhost:80 para visualizar a documentação.");
 	});
 	server.setTimeout(10800 * 1000);
 }).catch(error => console.log(error));
