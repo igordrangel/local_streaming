@@ -1,13 +1,13 @@
 {
-  "type": "postgres",
+  "type": "mysql",
   "host": "localhost",
-  "port": 5432,
-  "username": "local_streaming",
-  "password": "igor_root@10",
+  "port": 3306,
+  "username": "root",
+  "password": "ls_root@10",
   "database": "local_streaming",
   "synchronize": true,
   "entities": [
-    "src/entity/**/*.ts"
+    "dist/entity/**/*.js"
   ],
   "cli": {
     "entitiesDir": "src/entity"
