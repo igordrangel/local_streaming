@@ -31,9 +31,10 @@ export default class VideoRepository extends Repository<Video> {
 		                    .getData();
 	}
 	
-	public enviar(video: Video) {
+	public enviar(video: Video, id?: number) {
 		return new Promise<Video>((async (resolve, reject) => {
 			try {
+				if (id) video.id = id;
 				await this.save(video);
 				resolve(video);
 			} catch (e) {
@@ -45,13 +46,13 @@ export default class VideoRepository extends Repository<Video> {
 	public async excluir(id: number) {
 		try {
 			await this.delete(id);
-			await this.removeVideo(id.toString());
+			await this.removeDir(id.toString());
 		} catch (e) {
 			throw e;
 		}
 	}
 	
-	private async removeVideo(dirname: string) {
+	private async removeDir(dirname: string) {
 		await fs.rmdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`), {recursive: true});
 	}
 }

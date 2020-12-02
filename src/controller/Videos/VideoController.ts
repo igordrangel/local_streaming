@@ -7,8 +7,6 @@ import Video from "../../entity/Video/Video";
 import VideoRepository from "../../repository/Video/VideoRepository";
 import { BaseController } from "../../config/BaseController";
 import { getCustomRepository } from "typeorm";
-import VideoArquivoRepository from "../../repository/Video/VideoArquivoRepository";
-import VideoArquivo from "../../entity/VideoArquivo/VideoArquivo";
 
 module.exports = (api: Express) => {
 	/**
@@ -115,11 +113,11 @@ module.exports = (api: Express) => {
 	 * @apiVersion 1.0.0
 	 */
 	api.post("/video", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
-		const arquivos = req.body as VideoArquivo[];
+		const video = req.body as Video;
 		res.status(200).send({
 			error: false,
 			message: "Video incluído com sucesso!",
-			data: await getCustomRepository(VideoArquivoRepository).enviar(arquivos)
+			data: await getCustomRepository(VideoRepository).enviar(video)
 		} as ResponseInterface);
 	}));
 	
@@ -149,12 +147,13 @@ module.exports = (api: Express) => {
 	 *
 	 * @apiVersion 1.0.0
 	 */
-	api.put("/video", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
-		const arquivos = req.body as VideoArquivo[];
+	api.put("/video/:id", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
+		const video = req.body as Video;
+		const {id} = req.params;
 		res.status(200).send({
 			error: false,
 			message: "Video atualizado com sucesso!",
-			data: await getCustomRepository(VideoArquivoRepository).enviar(arquivos)
+			data: await getCustomRepository(VideoRepository).enviar(video, parseInt(id))
 		} as ResponseInterface);
 	}));
 	
