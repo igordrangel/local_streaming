@@ -3,11 +3,11 @@
   "host": "localhost",
   "port": 3306,
   "username": "root",
-  "password": "",
+  "password": "ls_root@10",
   "database": "local_streaming",
   "synchronize": true,
   "entities": [
-    "src/entity/**/*.ts"
+    "dist/entity/**/*.js"
   ],
   "cli": {
     "entitiesDir": "src/entity"
