@@ -28,6 +28,9 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 				await this.save(arquivo);
 				if (arquivo.tmpFilename) {
 					if (fs.existsSync(path.join(__dirname, `../../../_uploads/${arquivo.tmpFilename}`))) {
+						if (!await fs.existsSync(path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}`))) {
+							await fs.mkdirSync(path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}`));
+						}
 						fs.renameSync(
 							path.join(__dirname, `../../../_uploads/${arquivo.tmpFilename}`),
 							path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}/${arquivo.filename}`)
