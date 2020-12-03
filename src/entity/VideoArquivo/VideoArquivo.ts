@@ -15,7 +15,7 @@ export default class VideoArquivo {
 	@Column({length: 100, nullable: false})
 	filename: string;
 	
-	@Column({length: 10, nullable: false})
+	@Column({length: 50, nullable: false})
 	type: string;
 	
 	@Column({length: 100, nullable: true})
