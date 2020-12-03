@@ -26,8 +26,11 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					arquivo = koala(arquivoBd).object().merge(arquivo).getValue();
 				}
 				await this.save(arquivo);
-				if (arquivo.base64) {
-					await this.saveFile(arquivo.video.id.toString(), arquivo.filename, arquivo.base64);
+				if (arquivo.tmpFilename) {
+					fs.renameSync(
+						path.join(__dirname, `../../../_uploads/${arquivo.tmpFilename}`),
+						path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}/${arquivo.filename}`)
+					);
 				}
 				if (arquivo.legendaBase64) {
 					await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);

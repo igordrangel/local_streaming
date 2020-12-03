@@ -4,8 +4,26 @@ import { getCustomRepository } from "typeorm";
 import { ResponseInterface } from "../../config/interfaces/response.interface";
 import VideoArquivo from "../../entity/VideoArquivo/VideoArquivo";
 import VideoArquivoRepository from "../../repository/Video/VideoArquivoRepository";
+import multer = require("multer");
 
 module.exports = (api: Express) => {
+	const upload = multer({
+		dest: './_uploads',
+		limits: {
+			fileSize: 1000000000000000000
+		}
+	});
+	
+	api.post("/video/arquivo/upload", upload.single('video'), async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
+		res.status(200).send({
+			error: false,
+			message: "Arquivo incluído com sucesso!",
+			data: {
+				filename: req.file.filename,
+				type: req.file.mimetype
+			}
+		} as ResponseInterface);
+	}));
 	
 	/**
 	 * @api {post} /video/:id/arquivo Incluir Arquivo.

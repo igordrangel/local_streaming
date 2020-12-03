@@ -13,6 +13,11 @@ createConnection().then(async connection => {
 		fs.mkdirSync(dirVideosPath);
 	}
 	
+	const dirUploadsPath = path.join(__dirname, '../_uploads')
+	if (!fs.existsSync(dirUploadsPath)) {
+		fs.mkdirSync(dirUploadsPath);
+	}
+	
 	const server = api.listen(3000, async () => {
 		console.log("Servidor LocalStreaming iniciado na porta 3000.");
 		console.log("Abra http://localhost:3000 para visualizar a documentação.");

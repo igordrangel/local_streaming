@@ -28,7 +28,7 @@ export default class VideoArquivo {
 	})
 	video: Video;
 	
-	base64: string;
+	tmpFilename: string;
 	
 	legendaBase64: string;
 }
