@@ -27,10 +27,12 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 				}
 				await this.save(arquivo);
 				if (arquivo.tmpFilename) {
-					fs.renameSync(
-						path.join(__dirname, `../../../_uploads/${arquivo.tmpFilename}`),
-						path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}/${arquivo.filename}`)
-					);
+					if (fs.existsSync(path.join(__dirname, `../../../_uploads/${arquivo.tmpFilename}`))) {
+						fs.renameSync(
+							path.join(__dirname, `../../../_uploads/${arquivo.tmpFilename}`),
+							path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}/${arquivo.filename}`)
+						);
+					}
 				}
 				if (arquivo.legendaBase64) {
 					await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);

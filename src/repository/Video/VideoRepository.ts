@@ -53,6 +53,8 @@ export default class VideoRepository extends Repository<Video> {
 	}
 	
 	private async removeDir(dirname: string) {
-		await fs.rmdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`), {recursive: true});
+		if (fs.existsSync(path.join(__dirname, `../../../_arquivos/${dirname}`))) {
+			await fs.rmdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`), {recursive: true});
+		}
 	}
 }
