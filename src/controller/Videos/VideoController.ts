@@ -63,75 +63,57 @@ module.exports = (api: Express) => {
 	 */
 	api.get("/video/:id/:filename", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
 		const {id, filename} = req.params;
-		const movieFile = path.join(__dirname, `../../../_arquivos/${id}/${filename}`);
-		fs.stat(movieFile, (err, stats) => {
-			if (err) {
-				return res.status(404).send({
-					error: true,
-					message: "Este vídeo não existe"
-				} as ResponseInterface);
-			}
-			const {range} = req.headers;
-			const {size} = stats;
-			const start = Number((range || '').replace(/bytes=/, '').split('-')[0]);
-			const end = size - 1;
-			const chunkSize = (end - start) + 1;
-			res.set({
-				'Content-Range': `bytes ${start}-${end}/${size}`,
-				'Accept-Ranges': 'bytes',
-				'Content-Length': chunkSize,
-				'Content-Type': 'video/mp4'
+		const file = path.join(__dirname, `../../../_arquivos/${id}/${filename}`);
+		if (filename.indexOf('.srt')) {
+			const srt2vtt = require('srt-to-vtt');
+			fs.stat(file, (err, stats) => {
+				if (err) {
+					return res.status(404).send({
+						error: true,
+						message: "Esta legenda não existe"
+					} as ResponseInterface);
+				}
+				const {range} = req.headers;
+				const {size} = stats;
+				const start = Number((range || '').replace(/bytes=/, '').split('-')[0]);
+				const end = size - 1;
+				const chunkSize = (end - start) + 1;
+				res.set({
+					'Content-Range': `bytes ${start}-${end}/${size}`,
+					'Accept-Ranges': 'bytes',
+					'Content-Length': chunkSize
+				});
+				res.status(206);
+				const stream = fs.createReadStream(file, {start, end})
+				                 .pipe(srt2vtt())
+				                 .pipe(fs.createWriteStream(__dirname + '/' + filename.replace('.srt', '.vtt')));
+				stream.on('open', () => stream.pipe(res));
 			});
-			res.status(206);
-			const stream = fs.createReadStream(movieFile, {start, end});
-			stream.on('open', () => stream.pipe(res));
-			stream.on('error', (streamErr) => res.end(streamErr));
-		});
-	}));
-	
-	/**
-	 * @api {get} /video/:id/subtitle/:filename Visualizar Video.
-	 * @apiDescription Visualizar video.
-	 * @apiGroup Video
-	 *
-	 * @apiErrorExample {json} Error-Response:
-	 *     HTTP/2 4XX | 5XX
-	 *     {
-	 *       "error": "true",
-	 *       "message": "..."
-	 *     }
-	 * @apiSuccessExample {json} Success-Response:
-	 *     HTTP/2 206 OK
-	 *
-	 * @apiVersion 1.0.0
-	 */
-	api.get("/video/:id/subtitle/:filename", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
-		const srt2vtt = require('srt-to-vtt');
-		const {id, filename} = req.params;
-		const subtitleFile = path.join(__dirname, `../../../_arquivos/${id}/${filename}`);
-		fs.stat(subtitleFile, (err, stats) => {
-			if (err) {
-				return res.status(404).send({
-					error: true,
-					message: "Esta legenda não existe"
-				} as ResponseInterface);
-			}
-			const {range} = req.headers;
-			const {size} = stats;
-			const start = Number((range || '').replace(/bytes=/, '').split('-')[0]);
-			const end = size - 1;
-			const chunkSize = (end - start) + 1;
-			res.set({
-				'Content-Range': `bytes ${start}-${end}/${size}`,
-				'Accept-Ranges': 'bytes',
-				'Content-Length': chunkSize
+		} else {
+			fs.stat(file, (err, stats) => {
+				if (err) {
+					return res.status(404).send({
+						error: true,
+						message: "Este vídeo não existe"
+					} as ResponseInterface);
+				}
+				const {range} = req.headers;
+				const {size} = stats;
+				const start = Number((range || '').replace(/bytes=/, '').split('-')[0]);
+				const end = size - 1;
+				const chunkSize = (end - start) + 1;
+				res.set({
+					'Content-Range': `bytes ${start}-${end}/${size}`,
+					'Accept-Ranges': 'bytes',
+					'Content-Length': chunkSize,
+					'Content-Type': 'video/mp4'
+				});
+				res.status(206);
+				const stream = fs.createReadStream(file, {start, end});
+				stream.on('open', () => stream.pipe(res));
+				stream.on('error', (streamErr) => res.end(streamErr));
 			});
-			res.status(206);
-			const stream = fs.createReadStream(subtitleFile, {start, end})
-			                 .pipe(srt2vtt())
-			                 .pipe(fs.createWriteStream(__dirname + '/' + filename.replace('.srt', '.vtt')));
-			stream.on('open', () => stream.pipe(res));
-		});
+		}
 	}));
 	
 	/**
