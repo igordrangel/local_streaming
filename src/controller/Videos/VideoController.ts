@@ -64,7 +64,7 @@ module.exports = (api: Express) => {
 	api.get("/video/:id/:filename", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
 		const {id, filename} = req.params;
 		const file = path.join(__dirname, `../../../_arquivos/${id}/${filename}`);
-		if (filename.indexOf('.srt')) {
+		if (filename.indexOf('.srt') >= 0) {
 			const srt2vtt = require('srt-to-vtt');
 			fs.stat(file, (err, stats) => {
 				if (err) {
