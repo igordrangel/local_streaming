@@ -63,9 +63,9 @@ module.exports = (api: Express) => {
 	 */
 	api.get("/video/:id/:filename", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
 		const {id, filename} = req.params;
-		const file = path.join(__dirname, `../../../_arquivos/${id}/${filename}`);
-		if (filename.indexOf('.srt') >= 0) {
-			const srt2vtt = require('srt-to-vtt');
+		const file = path.join(__dirname, `../../../_arquivos/${id}/${filename.replace('.vtt', '.srt')}`);
+		if (filename.indexOf('.vtt') >= 0) {
+			const subsrt = require('subsrt');
 			fs.stat(file, (err, stats) => {
 				if (err) {
 					return res.status(404).send({
@@ -73,11 +73,8 @@ module.exports = (api: Express) => {
 						message: "Esta legenda não existe"
 					} as ResponseInterface);
 				}
-				res.status(200);
-				const stream = fs.createReadStream(file)
-				                 .pipe(srt2vtt())
-				                 .pipe(fs.createWriteStream(__dirname + '/' + filename.replace('.srt', '.vtt')));
-				stream.on('open', () => stream.pipe(res));
+				const srt = fs.readFileSync(file, 'utf8');
+				res.status(200).send(subsrt.convert(srt, {format: 'vtt'}));
 			});
 		} else {
 			fs.stat(file, (err, stats) => {
