@@ -20,7 +20,7 @@ module.exports = (api: Express) => {
 			message: "Arquivo incluído com sucesso!",
 			data: {
 				filename: req.file.filename,
-				type: req.file.mimetype
+				type: 'video/mp4'
 			}
 		} as ResponseInterface);
 	}));

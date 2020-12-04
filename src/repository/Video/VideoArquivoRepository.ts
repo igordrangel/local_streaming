@@ -1,9 +1,11 @@
 import * as fs from "fs";
+import { rmdirSync } from "fs";
 import * as path from "path";
 import { EntityRepository, getCustomRepository, Repository } from "typeorm";
 import VideoArquivo from "../../entity/VideoArquivo/VideoArquivo";
 import { koala } from "koala-utils";
 import VideoRepository from "./VideoRepository";
+import { execSync } from "child_process";
 
 @EntityRepository(VideoArquivo)
 export default class VideoArquivoRepository extends Repository<VideoArquivo> {
@@ -18,28 +20,20 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 				if (id) {
 					arquivoBd = await this.findOne(id);
 					if (arquivo.filename && arquivoBd.filename !== arquivo.filename) {
-						await this.removeFile(arquivo.video.id.toString(), arquivoBd.filename);
+						await this.removeFile(arquivoBd.video.id.toString(), arquivoBd.filename);
 					}
 					if (arquivo.legendaFilename && arquivoBd.filename !== arquivo.legendaFilename) {
-						await this.removeFile(arquivo.video.id.toString(), arquivoBd.legendaFilename);
+						await this.removeFile(arquivoBd.video.id.toString(), arquivoBd.legendaFilename);
 					}
 					arquivo = koala(arquivoBd).object().merge(arquivo).getValue();
 				}
-				await this.save(arquivo);
 				if (arquivo.tmpFilename) {
-					if (fs.existsSync(path.join(__dirname, `../../../_uploads/${arquivo.tmpFilename}`))) {
-						if (!await fs.existsSync(path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}`))) {
-							await fs.mkdirSync(path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}`));
-						}
-						fs.renameSync(
-							path.join(__dirname, `../../../_uploads/${arquivo.tmpFilename}`),
-							path.join(__dirname, `../../../_arquivos/${arquivo.video.id.toString()}/${arquivo.filename}`)
-						);
-					}
+					arquivo.filename = await this.saveVideo(arquivo.video.id.toString(), arquivo.tmpFilename, arquivo.filename);
 				}
 				if (arquivo.legendaBase64) {
 					await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);
 				}
+				await this.save(arquivo);
 				resolve(arquivo);
 			} catch (e) {
 				reject(e);
@@ -71,6 +65,41 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 			);
 			resolve();
 		})
+	}
+	
+	private async saveVideo(dirname: string, tmpFilename: string, filename: string) {
+		if (fs.existsSync(path.join(__dirname, `../../../_uploads/${tmpFilename}`))) {
+			if (!await fs.existsSync(path.join(__dirname, `../../../_arquivos/${dirname}`))) {
+				await fs.mkdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`));
+			}
+			const filePath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
+			fs.renameSync(
+				path.join(__dirname, `../../../_uploads/${tmpFilename}`),
+				filePath
+			);
+			return (await koala(filename)
+				.string()
+				.split('.')
+				.pipeAsync(async klFilename => {
+					const arrFilename = klFilename.getValue();
+					const ext = arrFilename[arrFilename.length - 1];
+					
+					if (ext === 'mkv') {
+						arrFilename[arrFilename.length - 1] = 'mp4';
+						const newName = koala(arrFilename).array<string>().toString('.').getValue();
+						
+						const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
+						const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
+						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec copy "${newPath}"`);
+						rmdirSync(currentPath, {recursive: true});
+						filename = newName;
+					}
+					
+					return [filename];
+				}))
+				.toString()
+				.getValue();
+		}
 	}
 	
 	private async removeFile(dirname: string, filename: string) {
