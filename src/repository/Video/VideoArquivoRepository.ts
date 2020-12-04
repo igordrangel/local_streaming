@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import { rmdirSync } from "fs";
 import * as path from "path";
 import { EntityRepository, getCustomRepository, Repository } from "typeorm";
 import VideoArquivo from "../../entity/VideoArquivo/VideoArquivo";
@@ -91,7 +90,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 						const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
 						const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
 						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec copy "${newPath}"`);
-						rmdirSync(currentPath, {recursive: true});
+						fs.unlinkSync(currentPath);
 						filename = newName;
 					}
 					
@@ -104,7 +103,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 	
 	private async removeFile(dirname: string, filename: string) {
 		if (await fs.existsSync(path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`))) {
-			await fs.rmdirSync(path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`), {recursive: true});
+			await fs.unlinkSync(path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`));
 		}
 	}
 }
