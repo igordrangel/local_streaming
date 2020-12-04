@@ -73,18 +73,8 @@ module.exports = (api: Express) => {
 						message: "Esta legenda não existe"
 					} as ResponseInterface);
 				}
-				const {range} = req.headers;
-				const {size} = stats;
-				const start = Number((range || '').replace(/bytes=/, '').split('-')[0]);
-				const end = size - 1;
-				const chunkSize = (end - start) + 1;
-				res.set({
-					'Content-Range': `bytes ${start}-${end}/${size}`,
-					'Accept-Ranges': 'bytes',
-					'Content-Length': chunkSize
-				});
-				res.status(206);
-				const stream = fs.createReadStream(file, {start, end})
+				res.status(200);
+				const stream = fs.createReadStream(file)
 				                 .pipe(srt2vtt())
 				                 .pipe(fs.createWriteStream(__dirname + '/' + filename.replace('.srt', '.vtt')));
 				stream.on('open', () => stream.pipe(res));
