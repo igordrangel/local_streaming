@@ -30,6 +30,8 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					arquivo.filename = await this.saveVideo(arquivo.video.id.toString(), arquivo.tmpFilename, arquivo.filename);
 				}
 				if (arquivo.legendaBase64) {
+					const arrFilename = arquivo.filename.split('.');
+					arquivo.legendaFilename = arrFilename[0] + '.srt';
 					await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);
 				}
 				await this.save(arquivo);
