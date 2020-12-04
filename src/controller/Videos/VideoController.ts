@@ -106,6 +106,7 @@ module.exports = (api: Express) => {
 	 * @apiVersion 1.0.0
 	 */
 	api.get("/video/:id/subtitle/:filename", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
+		const srt2vtt = require('srt-to-vtt');
 		const {id, filename} = req.params;
 		const subtitleFile = path.join(__dirname, `../../../_arquivos/${id}/${filename}`);
 		fs.stat(subtitleFile, (err, stats) => {
@@ -115,7 +116,21 @@ module.exports = (api: Express) => {
 					message: "Esta legenda não existe"
 				} as ResponseInterface);
 			}
-			res.status(200).send(fs.readFileSync(subtitleFile));
+			const {range} = req.headers;
+			const {size} = stats;
+			const start = Number((range || '').replace(/bytes=/, '').split('-')[0]);
+			const end = size - 1;
+			const chunkSize = (end - start) + 1;
+			res.set({
+				'Content-Range': `bytes ${start}-${end}/${size}`,
+				'Accept-Ranges': 'bytes',
+				'Content-Length': chunkSize
+			});
+			res.status(206);
+			const stream = fs.createReadStream(subtitleFile, {start, end})
+			                 .pipe(srt2vtt())
+			                 .pipe(fs.createWriteStream(__dirname + '/' + filename.replace('.srt', '.vtt')));
+			stream.on('open', () => stream.pipe(res));
 		});
 	}));
 	
