@@ -89,7 +89,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 						
 						const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
 						const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
-						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec copy "${newPath}"`);
+						await execSync(`ffmpeg -i "${currentPath}" -c copy -c:a aac copy "${newPath}"`);
 						fs.unlinkSync(currentPath);
 						filename = newName;
 					}
