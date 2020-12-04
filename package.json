@@ -22,7 +22,8 @@
     "mysql": "^2.18.1",
     "reflect-metadata": "^0.1.13",
     "subsrt": "^1.1.1",
-    "typeorm": "0.2.29"
+    "typeorm": "0.2.29",
+    "utf8": "^3.0.0"
   },
   "scripts": {
     "start": "npm run build && node dist/index.js",

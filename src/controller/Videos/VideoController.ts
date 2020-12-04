@@ -66,6 +66,7 @@ module.exports = (api: Express) => {
 		const file = path.join(__dirname, `../../../_arquivos/${id}/${filename.replace('.vtt', '.srt')}`);
 		if (filename.indexOf('.vtt') >= 0) {
 			const subsrt = require('subsrt');
+			const utf8 = require('utf8');
 			fs.stat(file, (err, stats) => {
 				if (err) {
 					return res.status(404).send({
@@ -73,7 +74,11 @@ module.exports = (api: Express) => {
 						message: "Esta legenda não existe"
 					} as ResponseInterface);
 				}
-				const srt = fs.readFileSync(file, 'utf8');
+				res.set({
+					'Content-Type': 'text/html',
+					'charset': 'utf-8'
+				})
+				const srt = fs.readFileSync(file).toString('utf8');
 				res.status(200).send(subsrt.convert(srt, {format: 'vtt'}));
 			});
 		} else {
