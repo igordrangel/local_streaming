@@ -66,7 +66,6 @@ module.exports = (api: Express) => {
 		const file = path.join(__dirname, `../../../_arquivos/${id}/${filename.replace('.vtt', '.srt')}`);
 		if (filename.indexOf('.vtt') >= 0) {
 			const subsrt = require('subsrt');
-			const utf8 = require('utf8');
 			fs.stat(file, (err, stats) => {
 				if (err) {
 					return res.status(404).send({
