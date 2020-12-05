@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import { unlinkSync } from "fs";
 import * as path from "path";
 import { EntityRepository, getCustomRepository, Repository } from "typeorm";
 import VideoArquivo from "../../entity/VideoArquivo/VideoArquivo";
@@ -26,13 +27,22 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					}
 					arquivo = koala(arquivoBd).object().merge(arquivo).getValue();
 				}
-				if (arquivo.tmpFilename) {
-					arquivo.filename = await this.saveVideo(arquivo.video.id.toString(), arquivo.tmpFilename, arquivo.filename);
-				}
 				if (arquivo.legendaBase64) {
 					const arrFilename = arquivo.filename.split('.');
 					arquivo.legendaFilename = arrFilename[0] + '.srt';
 					await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);
+				}
+				if (arquivo.tmpFilename) {
+					arquivo.filename = await this.saveVideo(
+						arquivo.video.id.toString(),
+						arquivo.tmpFilename,
+						arquivo.filename,
+						arquivo.legendaFilename
+					);
+					if (arquivo.legendaBase64) {
+						await this.removeFile(arquivo.video.id.toString(), arquivo.legendaFilename);
+						arquivo.legendaFilename = null;
+					}
 				}
 				await this.save(arquivo);
 				resolve(arquivo);
@@ -68,7 +78,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 		})
 	}
 	
-	private async saveVideo(dirname: string, tmpFilename: string, filename: string) {
+	private async saveVideo(dirname: string, tmpFilename: string, filename: string, filenameLegenda: string) {
 		if (fs.existsSync(path.join(__dirname, `../../../_uploads/${tmpFilename}`))) {
 			if (!await fs.existsSync(path.join(__dirname, `../../../_arquivos/${dirname}`))) {
 				await fs.mkdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`));
@@ -90,8 +100,14 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 						const newName = koala(arrFilename).array<string>().toString('.').getValue();
 						
 						const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
+						const tmpPath = path.join(__dirname, `../../../_arquivos/${dirname}/tmp_${newName}`);
 						const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
 						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec ac3 "${newPath}"`);
+						if (filenameLegenda) {
+							const subtitlePath = path.join(__dirname, `../../../_arquivos/${dirname}/${filenameLegenda}`);
+							await execSync(`ffmpeg -i "${tmpPath}" -filter_complex "subtitles=${subtitlePath}" -c:a copy "${newPath}"`);
+							await unlinkSync(tmpPath);
+						}
 						fs.unlinkSync(currentPath);
 						filename = newName;
 					}
