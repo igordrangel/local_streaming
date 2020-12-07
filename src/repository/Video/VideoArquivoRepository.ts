@@ -89,12 +89,16 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					const arrFilename = klFilename.getValue();
 					const ext = arrFilename[arrFilename.length - 1];
 					
+					arrFilename[arrFilename.length - 1] = 'mp4';
+					const newName = koala(arrFilename).array<string>().toString('.').getValue();
+					
+					const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
+					const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
 					if (ext === 'mkv') {
-						arrFilename[arrFilename.length - 1] = 'mp4';
-						const newName = koala(arrFilename).array<string>().toString('.').getValue();
-						
-						const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
-						const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
+						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec aac "${newPath}"`);
+						fs.unlinkSync(currentPath);
+						filename = newName;
+					} else if (ext === 'avi') {
 						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec aac "${newPath}"`);
 						fs.unlinkSync(currentPath);
 						filename = newName;
