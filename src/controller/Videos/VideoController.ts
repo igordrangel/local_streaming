@@ -88,11 +88,21 @@ module.exports = (api: Express) => {
 						message: "Este vídeo não existe"
 					} as ResponseInterface);
 				}
+				const {range} = req.headers;
+				const {size} = stats;
+				const start = Number((range || '').replace(/bytes=/, '').split('-')[0]);
+				const end = size - 1;
+				const chunkSize = (end - start) + 1;
 				res.set({
+					'Content-Range': `bytes ${start}-${end}/${size}`,
+					'Accept-Ranges': 'bytes',
+					'Content-Length': chunkSize,
 					'Content-Type': 'video/mp4'
 				});
-				const video = fs.readFileSync(file).toString('base64');
-				res.status(200).send(video);
+				res.status(206);
+				const stream = fs.createReadStream(file, {start, end});
+				stream.on('open', () => stream.pipe(res));
+				stream.on('error', (streamErr) => res.end(streamErr));
 			});
 		}
 	}));
