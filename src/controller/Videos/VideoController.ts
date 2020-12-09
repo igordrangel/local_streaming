@@ -91,7 +91,7 @@ module.exports = (api: Express) => {
 				res.set({
 					'Content-Type': 'video/mp4'
 				});
-				const video = fs.readFileSync(file).toString('utf8');
+				const video = fs.readFileSync(file).toString('base64');
 				res.status(200).send(video);
 			});
 		}
