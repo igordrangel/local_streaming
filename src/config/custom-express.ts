@@ -12,7 +12,7 @@ module.exports = () => {
 	app.use(express.json({limit: '100gb'}));
 	app.use(bodyParser.json());
 	app.use(bodyParser.urlencoded({extended: true}));
-	app.use(cors({origin: "http://192.168.18.162:3000"}));
+	app.use(cors({origin: "*"}));
 	consign({extensions: ['.js']}).include('dist/controller').into(app);
 	app.use(timeout('1800s'));
 	return app;
