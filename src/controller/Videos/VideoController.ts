@@ -74,7 +74,7 @@ module.exports = (api: Express) => {
 					} as ResponseInterface);
 				}
 				res.set({
-					'Content-Type': 'text/html',
+					'Content-Type': 'text/vtt',
 					'charset': 'utf-8'
 				})
 				const srt = fs.readFileSync(file).toString('utf8');
