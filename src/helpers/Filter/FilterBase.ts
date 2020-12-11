@@ -52,6 +52,11 @@ export abstract class FilterBase<TypeEntity> {
 		return this;
 	}
 	
+	public orderBy(sort?: string, order?: 'ASC' | 'DESC') {
+		if (sort) this.qb.orderBy(sort, order);
+		return this;
+	}
+	
 	public getData() {
 		return this.qb.getMany();
 	}

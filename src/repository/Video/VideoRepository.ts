@@ -17,7 +17,7 @@ export default class VideoRepository extends Repository<Video> {
 		                    .getOne();
 	}
 	
-	public buscar(params: Video) {
+	public buscar(params: any) {
 		return FilterService.search(Video)
 		                    .addJoinsOnList([
 			                    {mapToProperty: 'e.arquivos', target: VideoArquivo, alias: 'a', condition: 'a.video = e.id'}
@@ -28,6 +28,7 @@ export default class VideoRepository extends Repository<Video> {
 		                    ])
 		                    .and({collumName: 'e.categoria', comparator: "=", value: params.categoria})
 		                    .and({collumName: 'e.tipo', comparator: "=", value: params.tipo})
+		                    .orderBy(params?.sort, params?.order)
 		                    .getData();
 	}
 	
