@@ -26,17 +26,22 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					}
 					arquivo = koala(arquivoBd).object().merge(arquivo).getValue();
 				}
-				if (arquivo.tmpFilename) {
-					arquivo.filename = await this.saveVideo(
-						arquivo.video.id.toString(),
-						arquivo.tmpFilename,
-						arquivo.filename
-					);
-				}
 				if (arquivo.legendaBase64) {
 					const arrFilename = arquivo.filename.split('.');
 					arquivo.legendaFilename = arrFilename[0] + '.srt';
 					await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);
+				}
+				if (arquivo.tmpFilename) {
+					arquivo.filename = await this.saveVideo(
+						arquivo.video.id.toString(),
+						arquivo.tmpFilename,
+						arquivo.filename,
+						arquivo.legendaFilename
+					);
+				}
+				if (arquivo.legendaBase64) {
+					await this.removeFile(arquivo.video.id.toString(), arquivo.legendaFilename);
+					arquivo.legendaFilename = null;
 				}
 				await this.save(arquivo);
 				resolve(arquivo);
@@ -72,12 +77,12 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 		})
 	}
 	
-	private async saveVideo(dirname: string, tmpFilename: string, filename: string) {
+	private async saveVideo(dirname: string, tmpFilename: string, filename: string, filenameLegenda: string) {
 		if (fs.existsSync(path.join(__dirname, `../../../_uploads/${tmpFilename}`))) {
 			if (!await fs.existsSync(path.join(__dirname, `../../../_arquivos/${dirname}`))) {
 				await fs.mkdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`));
 			}
-			const filePath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
+			const filePath = path.join(__dirname, `../../../_arquivos/${dirname}/tmp_${filename}`);
 			fs.renameSync(
 				path.join(__dirname, `../../../_uploads/${tmpFilename}`),
 				filePath
@@ -92,16 +97,20 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					arrFilename[arrFilename.length - 1] = 'mp4';
 					const newName = koala(arrFilename).array<string>().toString('.').getValue();
 					
-					const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
+					const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/tmp_${filename}`);
+					const tmpPath = path.join(__dirname, `../../../_arquivos/${dirname}/tmp_${newName}`);
 					const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
-					if (ext === 'mkv') {
-						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec aac "${newPath}"`);
+					if (ext === 'mkv' || ext === 'avi') {
+						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec aac "${tmpPath}"`);
 						fs.unlinkSync(currentPath);
 						filename = newName;
-					} else if (ext === 'avi') {
-						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec aac "${newPath}"`);
-						fs.unlinkSync(currentPath);
-						filename = newName;
+					}
+					if (filenameLegenda) {
+						const subtitlePath = path.join(__dirname, `../../../_arquivos/${dirname}/${filenameLegenda}`)
+						                         .replace(/\\/g, '/')
+						                         .replace(':/', '\\:/');
+						await execSync(`ffmpeg -i "${tmpPath}" -filter_complex "subtitles='${subtitlePath}'" -c:a copy "${newPath}"`);
+						await fs.unlinkSync(tmpPath);
 					}
 					
 					return [filename];
