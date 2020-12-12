@@ -82,7 +82,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 			if (!await fs.existsSync(path.join(__dirname, `../../../_arquivos/${dirname}`))) {
 				await fs.mkdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`));
 			}
-			const filePath = path.join(__dirname, `../../../_arquivos/${dirname}/tmp_${filename}`);
+			const filePath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
 			fs.renameSync(
 				path.join(__dirname, `../../../_uploads/${tmpFilename}`),
 				filePath
