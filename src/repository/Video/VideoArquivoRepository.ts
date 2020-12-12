@@ -104,7 +104,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 						                         .replace(/\\/g, '/')
 						                         .replace(':/', '\\:/');
 						await execSync(`ffmpeg -i "${currentPath}" -vf "subtitles='${subtitlePath}'" -crf 0 -preset veryfast "${newPath}"`);
-					} else if (ext === 'mkv' || ext === 'avi') {
+					} else if (ext !== 'mp4') {
 						await execSync(`ffmpeg -i "${currentPath}" -crf 0 -preset veryfast "${newName}"`);
 					}
 					filename = newName;
