@@ -1,0 +1,78 @@
+{
+  "configVersion": 1,
+  "timestamp": 1607811077905,
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "Local Streaming",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/favicon.ico",
+        "/index.html",
+        "/main.06bbd9b30bbca3ec7c4f.js",
+        "/manifest.webmanifest",
+        "/polyfills.35a5ca1855eb057f016a.js",
+        "/runtime.acf0dec4155e77772545.js",
+        "/styles.87bbe28911d7edaf2b43.css"
+      ],
+      "patterns": []
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "cacheQueryOptions": {
+        "ignoreVary": true
+      },
+      "urls": [
+        "/assets/cast_sender.js",
+        "/assets/icons/icon-144x144.png",
+        "/assets/icons/icon-192x192.png",
+        "/assets/icons/icon-512x512.png",
+        "/assets/icons/icon-72x72.png",
+        "/assets/icons/icon-96x96.png",
+        "/assets/poster-default.jpg"
+      ],
+      "patterns": []
+    }
+  ],
+  "dataGroups": [],
+  "hashTable": {
+    "/assets/cast_sender.js": "534c90a61d0666c98019ee15ca7bbfab330865fa",
+    "/assets/icons/icon-144x144.png": "77e62a80c3e9e4aac17b5594ff7f6a1a30ffb10a",
+    "/assets/icons/icon-192x192.png": "929cd6b3d41e2fc717bf42bcda048f4f08748bef",
+    "/assets/icons/icon-512x512.png": "e5ecefef1f41ba8f8d502ce83bd46e6e6e5fd7f9",
+    "/assets/icons/icon-72x72.png": "6613b07d9e147694a64c5802287e9ee4fe309a2c",
+    "/assets/icons/icon-96x96.png": "d01a79575a8de80c81688763b86046aad32f3a3b",
+    "/assets/poster-default.jpg": "a9b056e1e7682ab12f50cd0fa298dae236304882",
+    "/favicon.ico": "9d8add95a9e59a48e1a60e4516d232d870e9fbf8",
+    "/index.html": "e78c6a899560d961b1e7f7a817a8a68173866015",
+    "/main.06bbd9b30bbca3ec7c4f.js": "5cc0dc7b423b3a15d905fcb155185ab608711686",
+    "/manifest.webmanifest": "ae16a78a46e212449e7a9cf1c6caf956464185dc",
+    "/polyfills.35a5ca1855eb057f016a.js": "578360d24ce37383f261c7ef63b1f822d28e8dde",
+    "/runtime.acf0dec4155e77772545.js": "a9aafcf49f49145093fc831efd9b8e2f6c71bb9c",
+    "/styles.87bbe28911d7edaf2b43.css": "ec412fa7fb91678e81582ebbb3615481f0c79e15"
+  },
+  "navigationUrls": [
+    {
+      "positive": true,
+      "regex": "^\\/.*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*\\.[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*$"
+    },
+    {
+      "positive": false,
+      "regex": "^\\/(?:.+\\/)?[^/]*__[^/]*\\/.*$"
+    }
+  ]
+}

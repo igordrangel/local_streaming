@@ -26,22 +26,17 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					}
 					arquivo = koala(arquivoBd).object().merge(arquivo).getValue();
 				}
-				if (arquivo.legendaBase64) {
-					const arrFilename = arquivo.filename.split('.');
-					arquivo.legendaFilename = arrFilename[0] + '.srt';
-					await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);
-				}
 				if (arquivo.tmpFilename) {
 					arquivo.filename = await this.saveVideo(
 						arquivo.video.id.toString(),
 						arquivo.tmpFilename,
-						arquivo.filename,
-						arquivo.legendaFilename
+						arquivo.filename
 					);
 				}
 				if (arquivo.legendaBase64) {
-					await this.removeFile(arquivo.video.id.toString(), arquivo.legendaFilename);
-					arquivo.legendaFilename = null;
+					const arrFilename = arquivo.filename.split('.');
+					arquivo.legendaFilename = arrFilename[0] + '.srt';
+					await this.saveFile(arquivo.video.id.toString(), arquivo.legendaFilename, arquivo.legendaBase64);
 				}
 				await this.save(arquivo);
 				resolve(arquivo);
@@ -77,7 +72,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 		})
 	}
 	
-	private async saveVideo(dirname: string, tmpFilename: string, filename: string, filenameLegenda: string) {
+	private async saveVideo(dirname: string, tmpFilename: string, filename: string) {
 		if (fs.existsSync(path.join(__dirname, `../../../_uploads/${tmpFilename}`))) {
 			if (!await fs.existsSync(path.join(__dirname, `../../../_arquivos/${dirname}`))) {
 				await fs.mkdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`));
@@ -99,16 +94,10 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					
 					const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
 					const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
-					if (filenameLegenda) {
-						const subtitlePath = path.join(__dirname, `../../../_arquivos/${dirname}/${filenameLegenda}`)
-						                         .replace(/\\/g, '/')
-						                         .replace(':/', '\\:/');
-						await execSync(`ffmpeg -i "${currentPath}" -vf "subtitles='${subtitlePath}'" -crf 0 -preset veryfast "${newPath}"`);
-					} else if (ext !== 'mp4') {
-						await execSync(`ffmpeg -i "${currentPath}" -crf 0 -preset veryfast "${newName}"`);
+					if (ext !== 'mp4') {
+						await execSync(`ffmpeg -i "${currentPath}" -crf 0 -preset veryfast "${newPath}"`);
 					}
 					filename = newName;
-					await fs.unlinkSync(currentPath);
 					
 					return [filename];
 				}))
