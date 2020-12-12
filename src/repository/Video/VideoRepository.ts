@@ -29,6 +29,7 @@ export default class VideoRepository extends Repository<Video> {
 		                    .and({collumName: 'e.categoria', comparator: "=", value: params.categoria})
 		                    .and({collumName: 'e.tipo', comparator: "=", value: params.tipo})
 		                    .orderBy(params?.sort, params?.order)
+		                    .setPageLimit(params?.page, params?.limit)
 		                    .getData();
 	}
 	

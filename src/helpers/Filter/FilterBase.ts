@@ -57,6 +57,12 @@ export abstract class FilterBase<TypeEntity> {
 		return this;
 	}
 	
+	public setPageLimit(page: number = 0, limit: number = 100) {
+		this.qb.offset(page);
+		this.qb.limit(limit);
+		return this;
+	}
+	
 	public getData() {
 		return this.qb.getMany();
 	}
