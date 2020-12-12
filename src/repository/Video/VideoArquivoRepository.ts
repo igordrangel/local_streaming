@@ -97,21 +97,18 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					arrFilename[arrFilename.length - 1] = 'mp4';
 					const newName = koala(arrFilename).array<string>().toString('.').getValue();
 					
-					const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/tmp_${filename}`);
-					const tmpPath = path.join(__dirname, `../../../_arquivos/${dirname}/tmp_${newName}`);
+					const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
 					const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
-					if (ext === 'mkv' || ext === 'avi') {
-						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec aac "${tmpPath}"`);
-						fs.unlinkSync(currentPath);
-						filename = newName;
-					}
 					if (filenameLegenda) {
 						const subtitlePath = path.join(__dirname, `../../../_arquivos/${dirname}/${filenameLegenda}`)
 						                         .replace(/\\/g, '/')
 						                         .replace(':/', '\\:/');
-						await execSync(`ffmpeg -i "${tmpPath}" -filter_complex "subtitles='${subtitlePath}'" -c:a copy "${newPath}"`);
-						await fs.unlinkSync(tmpPath);
+						await execSync(`ffmpeg -i "${currentPath}" -vf "subtitles='${subtitlePath}'" -crf 0 -preset veryfast "${newPath}"`);
+					} else if (ext === 'mkv' || ext === 'avi') {
+						await execSync(`ffmpeg -i "${currentPath}" -crf 0 -preset veryfast "${newName}"`);
 					}
+					filename = newName;
+					await fs.unlinkSync(currentPath);
 					
 					return [filename];
 				}))
