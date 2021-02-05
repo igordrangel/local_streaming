@@ -24,7 +24,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					if (arquivo.legendaFilename && arquivoBd.filename !== arquivo.legendaFilename) {
 						await this.removeFile(arquivoBd.video.id.toString(), arquivoBd.legendaFilename);
 					}
-					arquivo = koala(arquivoBd).object().merge(arquivo).getValue();
+					arquivo = koala(arquivoBd).object<any>().merge(arquivo).getValue();
 				}
 				if (arquivo.tmpFilename) {
 					arquivo.filename = await this.saveVideo(

@@ -1,22 +1,10 @@
 import "reflect-metadata";
 import { createConnection } from "typeorm";
 import { Express } from "express";
-import * as path from "path";
-import * as fs from "fs";
 
-createConnection().then(async connection => {
+createConnection().then(async () => {
 	const customExpress = require("./config/custom-express");
 	const api: Express = customExpress();
-	
-	const dirVideosPath = path.join(__dirname, '../_arquivos')
-	if (!fs.existsSync(dirVideosPath)) {
-		fs.mkdirSync(dirVideosPath);
-	}
-	
-	const dirUploadsPath = path.join(__dirname, '../_uploads')
-	if (!fs.existsSync(dirUploadsPath)) {
-		fs.mkdirSync(dirUploadsPath);
-	}
 	
 	const server = api.listen(3000, async () => {
 		console.log("Servidor LocalStreaming iniciado na porta 3000.");
