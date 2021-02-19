@@ -21,6 +21,9 @@ export default class VideoArquivo {
 	@Column({length: 100, nullable: true})
 	legendaFilename: string;
 	
+	@Column({nullable: false, default: false})
+	current: boolean = false;
+	
 	@ManyToOne(type => Video, arquivos => VideoArquivo, {
 		eager: true,
 		cascade: true,

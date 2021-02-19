@@ -7,6 +7,7 @@ import Video from "../../entity/Video/Video";
 import VideoRepository from "../../repository/Video/VideoRepository";
 import { BaseController } from "../../config/BaseController";
 import { getCustomRepository } from "typeorm";
+import VideoArquivoRepository from "../../repository/Video/VideoArquivoRepository";
 
 module.exports = (api: Express) => {
 	/**
@@ -63,6 +64,12 @@ module.exports = (api: Express) => {
 	 */
 	api.get("/video/:id/:filename", async (req: Request, res: Response) => await BaseController.control(req, res, async (req, res) => {
 		const {id, filename} = req.params;
+		
+		const video = await getCustomRepository(VideoRepository).getPorId(parseInt(id));
+		const arquivoVideo = video.arquivos.find(arquivo => arquivo.filename === filename);
+		arquivoVideo.current = true;
+		await getCustomRepository(VideoArquivoRepository).save(arquivoVideo);
+		
 		const file = path.join(__dirname, `../../../_arquivos/${id}/${filename.replace('.vtt', '.srt')}`);
 		if (filename.indexOf('.vtt') >= 0) {
 			const subsrt = require('subsrt');
