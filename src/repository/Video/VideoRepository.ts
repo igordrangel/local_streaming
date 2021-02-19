@@ -18,7 +18,7 @@ export default class VideoRepository extends Repository<Video> {
 	}
 	
 	public buscar(params: any) {
-		return FilterService.search(Video, 'e', true)
+		return FilterService.search(Video, 'e.id', true)
 		                    .addJoinsOnList([
 			                    {mapToProperty: 'e.arquivos', target: VideoArquivo, alias: 'a', condition: 'a.video = e.id'}
 		                    ])
