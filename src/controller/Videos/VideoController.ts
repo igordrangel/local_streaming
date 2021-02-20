@@ -68,12 +68,16 @@ module.exports = (api: Express) => {
 		const video = await getCustomRepository(VideoRepository).getPorId(parseInt(id));
 		
 		const currentArquivoVideo = video.arquivos.find(arquivo => arquivo.current === true);
-		currentArquivoVideo.current = false;
-		await getCustomRepository(VideoArquivoRepository).save(currentArquivoVideo);
+		if (currentArquivoVideo) {
+			currentArquivoVideo.current = false;
+			await getCustomRepository(VideoArquivoRepository).save(currentArquivoVideo);
+		}
 		
 		const arquivoVideo = video.arquivos.find(arquivo => arquivo.filename === filename);
-		arquivoVideo.current = true;
-		await getCustomRepository(VideoArquivoRepository).save(arquivoVideo);
+		if (arquivoVideo) {
+			arquivoVideo.current = true;
+			await getCustomRepository(VideoArquivoRepository).save(arquivoVideo);
+		}
 		
 		const file = path.join(__dirname, `../../../_arquivos/${id}/${filename.replace('.vtt', '.srt')}`);
 		if (filename.indexOf('.vtt') >= 0) {
