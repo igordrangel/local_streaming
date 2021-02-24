@@ -4,6 +4,7 @@ import * as path from "path";
 import { EntityRepository, Repository } from "typeorm";
 import FilterService from "../../helpers/Filter/FilterService";
 import VideoArquivo from "../../entity/VideoArquivo/VideoArquivo";
+import { execSync } from "child_process";
 
 @EntityRepository(Video)
 export default class VideoRepository extends Repository<Video> {
@@ -56,8 +57,13 @@ export default class VideoRepository extends Repository<Video> {
 	}
 	
 	private async removeDir(dirname: string) {
-		if (fs.existsSync(path.join(__dirname, `../../../_arquivos/${dirname}`))) {
-			await fs.rmdirSync(path.join(__dirname, `../../../_arquivos/${dirname}`), {recursive: true});
+		const dirPath = path.join(__dirname, `../../../_arquivos/${dirname}`);
+		if (fs.existsSync(dirPath)) {
+			if (process.platform === 'win32') {
+				execSync(`del /f /s ${dirPath}`);
+			} else {
+				execSync(`rm -rf ${dirPath}`);
+			}
 		}
 	}
 }
