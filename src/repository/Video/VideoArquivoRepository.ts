@@ -95,7 +95,7 @@ export default class VideoArquivoRepository extends Repository<VideoArquivo> {
 					const currentPath = path.join(__dirname, `../../../_arquivos/${dirname}/${filename}`);
 					const newPath = path.join(__dirname, `../../../_arquivos/${dirname}/${newName}`);
 					if (ext === 'avi') {
-						await execSync(`ffmpeg -i "${currentPath}" -c:v copy -c:a copy -y "${newPath}"`);
+						await execSync(`ffmpeg -i "${currentPath}" -strict -2 "${newPath}"`);
 						await this.removeFile(dirname, filename);
 					} else if (ext !== 'mp4' && ext !== 'avi') {
 						await execSync(`ffmpeg -i "${currentPath}" -vcodec copy -acodec aac "${newPath}"`);
