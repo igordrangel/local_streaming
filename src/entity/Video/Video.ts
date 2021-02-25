@@ -14,6 +14,9 @@ export default class Video {
 	@Column({length: 150, nullable: true})
 	titulo?: string = null;
 	
+	@Column({length: 250, nullable: true})
+	poster?: string = null;
+	
 	@Column({nullable: true})
 	categoria: VideoCategoriaEnum;
 	
