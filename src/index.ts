@@ -3,12 +3,17 @@ import { createConnection } from "typeorm";
 import { Express } from "express";
 import * as fs from "fs";
 import * as path from "path";
+import * as https from "https";
+
+const privateKey  = fs.readFileSync(path.join(__dirname, '../ssl/server.key'), 'utf8');
+const certificate = fs.readFileSync(path.join(__dirname, '../ssl/server.crt'), 'utf8');
 
 createConnection().then(async () => {
 	const customExpress = require("./config/custom-express");
 	const api: Express = customExpress();
+	const certs = {key: privateKey, cert: certificate};
 	
-	const server = api.listen(3000, async () => {
+	const server = https.createServer(certs, api).listen(3000, async () => {
 		if (!fs.existsSync(path.join(__dirname, `../_arquivos`))) {
 			fs.mkdirSync(path.join(__dirname, `../_arquivos`));
 		}
